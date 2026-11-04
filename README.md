@@ -109,7 +109,7 @@ Copied from [results/benchmark_report.md](results/benchmark_report.md), which `m
 <!-- /results -->
 
 ## Testing
-`make test` runs TEST_COUNT tests offline with COVERAGE coverage of `alertlens/`, including a Streamlit smoke test of every page. CI runs lint, secret scan and tests on every push.
+`make test` runs 269 tests offline with 98% coverage of `alertlens/`, including a Streamlit smoke test of every page. CI runs lint, secret scan and tests on every push.
 
 ## Project structure
 ```
