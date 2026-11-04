@@ -20,7 +20,7 @@ TRIAGE = {"auto_close_candidate": "Could be closed, after a person checks", "nee
 CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,600;112,800&family=Atkinson+Hyperlegible:wght@400;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap');
-html, body, [class*="st-"], p, li, label { font-family: 'Atkinson Hyperlegible','Noto Sans Devanagari',system-ui,sans-serif; }
+html, body, p, li, label, input, textarea, button { font-family: 'Atkinson Hyperlegible','Noto Sans Devanagari',system-ui,sans-serif; }
 h1, h2, h3 { font-family: 'Archivo','Noto Sans Devanagari',system-ui,sans-serif !important; font-stretch: 112%; letter-spacing: -.01em; }
 h1 { font-weight: 800 !important; }
 .al-sev { display:inline-block; padding:.1rem .6rem; border-radius:3px; font-weight:700; color:#171A2B; }
@@ -69,7 +69,7 @@ def gauge(score: float, label: str) -> go.Figure:
                "steps": [{"range": [0, 30], "color": "#262A42"}, {"range": [30, 55], "color": "#2A2D45"},
                          {"range": [55, 78], "color": "#2F3049"}, {"range": [78, 100], "color": "#35304A"}]},
     ))
-    fig.update_layout(height=190, margin=dict(l=20, r=20, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", font_color="#ECE9F5")
+    fig.update_layout(height=190, margin=dict(l=36, r=36, t=24, b=0), paper_bgcolor="rgba(0,0,0,0)", font_color="#ECE9F5")
     return fig
 
 
@@ -178,7 +178,9 @@ def graph_figure(graph: dict) -> go.Figure:
                                color=["#F2545B" if n["pivot"] else colour.get(n["kind"], "#9AA0B5") for n in nodes])),
     ])
     fig.update_layout(height=420, showlegend=False, margin=dict(l=10, r=10, t=10, b=10), paper_bgcolor="rgba(0,0,0,0)",
-                      plot_bgcolor="rgba(0,0,0,0)", font_color="#ECE9F5", xaxis=dict(visible=False), yaxis=dict(visible=False))
+                      plot_bgcolor="rgba(0,0,0,0)", font_color="#ECE9F5",
+                      xaxis=dict(visible=False, range=[min(p[0] for p in pos.values()) - 0.4, max(p[0] for p in pos.values()) + 0.4]),
+                      yaxis=dict(visible=False, range=[min(p[1] for p in pos.values()) - 0.2, max(p[1] for p in pos.values()) + 0.3]))
     return fig
 
 

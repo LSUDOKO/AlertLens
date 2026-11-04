@@ -60,6 +60,13 @@ def test_settings_saves():
     update_settings(correlation_window_min=old)
 
 
+def test_incident_report_prepares_and_magic_is_off():
+    assert "magicEnabled = false" in (ROOT / ".streamlit/config.toml").read_text()
+    at = AppTest.from_file(str(ROOT) + "/ui/pages/2_Incidents.py", default_timeout=60).run()
+    next(b for b in at.button if b.label == "Prepare report").click().run()
+    assert not at.exception, [e.value for e in at.exception]
+
+
 def test_escape_helper():
     from ui.common import esc
 

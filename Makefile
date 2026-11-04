@@ -2,7 +2,6 @@ VENV := .venv
 BIN := $(VENV)/bin
 PY := $(BIN)/python
 export PYTHONPATH := .
-export LLM_PROVIDER ?= mock
 
 .PHONY: setup data train seed api ui demo test lint eval report retrain check-secrets clean
 
@@ -47,7 +46,7 @@ lint:
 	$(BIN)/ruff check .
 
 eval:
-	$(PY) -m eval.run_benchmark
+	$(PY) -m eval.run_benchmark $(EVAL_ARGS)
 
 report:
 	$(PY) -m eval.report

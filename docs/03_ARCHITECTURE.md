@@ -40,8 +40,8 @@
 |---|---|---|---|---|
 | 1 | Adapter | `ingest/adapters.py` | vendor JSON → `RawAlert` | No |
 | 2 | Normalise | `ingest/normalise.py` | `RawAlert` → `Alert` | No |
-| 3 | Redact | `safety/pii.py` | `Alert` → `Alert` with placeholders + vault | No |
-| 4 | Sanitise | `safety/injection.py` | `Alert` → `SanitiseReport` (findings, quarantined fields) | Optional classifier |
+| 3 | Sanitise | `safety/injection.py` | `Alert` → `SanitiseReport` (findings, quarantined fields) | No |
+| 4 | Redact | `safety/pii.py` | values → placeholders + vault, applied when each LLM view is built | No |
 | 5 | Extract | `llm/quarantined.py` | free-text fields → `ExtractedFacts` (strict schema) | Yes (quarantined) |
 | 6 | Score | `scoring/scorer.py` | `Alert` + facts → `SeverityResult` (score, label, confidence, reasons) | No |
 | 7 | Counterfactual | `scoring/counterfactual.py` | `Alert` → list of "would be X if Y" | No |
@@ -60,6 +60,8 @@
 
 `pipeline/orchestrator.py` runs the stages in order and returns an `AnalysisResult`.
 
+**As built:** sanitising runs before redaction, because redaction replaces identifier fields whole and would hide a payload planted in `user` or `host`. The scorer ignores LLM facts completely, and rule lookups use `rule_id`, so severity depends on no model output. Facts from the extractor are reconciled against code-derived facts, and code wins a conflict. The optional injection classifier and full STIX loading were not built.
+
 ## 3. LLM provider layer
 `llm/provider.py` exposes one interface:
 
@@ -74,7 +76,7 @@ Implementations:
 - `MockLLM` (**default**): deterministic, template-based, offline. Produces valid outputs for every schema, so the app and tests always work. Its job is to make the system demo-able with zero setup, not to be smart.
 - `OllamaLLM`: local model through `http://localhost:11434` (for example a 3B–8B instruct model). Set the model name in `.env`.
 - `OpenAICompatibleLLM`: any OpenAI-compatible endpoint (Groq, OpenRouter, LM Studio, vLLM).
-- `GeminiLLM`, `AnthropicLLM`: optional.
+- Gemini and Anthropic: both expose OpenAI-compatible endpoints, so they share `OpenAICompatibleLLM`. Only the wire format is tested, against a local stub.
 - `NaiveBaselineLLM`: wraps any provider but sends the **raw alert** with no defences. Used only by the benchmark for comparison.
 
 Every response records provider, model, latency, tokens (if known) and whether it fell back to a template.

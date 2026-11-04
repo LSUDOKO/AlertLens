@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 from alertlens.config import ROOT  # noqa: E402
 
 log = logging.getLogger(__name__)
-INK, MUTED, BAD, GOOD = "#E6EDF3", "#8B98A5", "#F2545B", "#7CE0C3"
-BG = "#0B0F14"
+INK, MUTED, BAD, GOOD = "#ECE9F5", "#A9ACC6", "#F2545B", "#A9B8FF"
+BG = "#171A2B"
 
 
 def _style(ax, fig) -> None:
@@ -43,7 +43,7 @@ def charts(r: dict, out: Path) -> None:
         ax.set_ylabel("Attack success rate (%)")
         ax.set_title("Attack success by injection family")
         _style(ax, fig)
-        ax.legend(frameon=False, labelcolor=INK, fontsize=8)
+        ax.legend(frameon=False, labelcolor=INK, fontsize=8, loc="upper center", ncol=2, bbox_to_anchor=(0.5, -0.32))
         fig.tight_layout()
         fig.savefig(out / "asr_by_family.png", dpi=130, facecolor=BG)
         plt.close(fig)
@@ -155,6 +155,9 @@ def write_report(r: dict, out_dir: Path) -> None:
               "The model's precision on this data is optimistic.",
               "- The held-out paraphrases were not used to tune rules, but the same authors wrote them, so they are not a truly blind test. "
               "Unknown languages and encodings will evade the detector more often.",
+              "- Pandey and Bhujang (2026) measured that a deterministic mock mispredicts real models, especially for direct overrides, "
+              "so the simulated naive column must not be read as a prediction of any real LLM. Their persona and context payload styles "
+              "got past the first version of this detector (2 of 6 styles detected) and rules were then added for them.",
               "- The verifier checks concrete values and a few polarities. Qualitative wording is shown as partially verified.",
               "- A mislabelled training pattern (service tokens) is planted for the feedback demo, and it lowers recall until corrected.",
               "- Structured fields such as `rule_level` are trusted as sensor output. Someone able to forge those can change the score."]

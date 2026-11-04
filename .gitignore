@@ -14,3 +14,4 @@ models/*
 data/benchmark/
 .DS_Store
 results/quick/
+.playwright-mcp/

@@ -1,0 +1,8 @@
+.git
+.venv
+*.db*
+models/*
+data/benchmark
+.playwright-mcp
+__pycache__
+.env

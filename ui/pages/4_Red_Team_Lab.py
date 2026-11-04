@@ -24,18 +24,27 @@ out = st.session_state.get("attack")
 if not out:
     st.info("Choose a payload and press Attack.")
     st.stop()
+
+
+def verdict_box(fooled: bool) -> None:
+    if fooled:
+        st.error("Fooled")
+    else:
+        st.success("Not fooled")
+
+
 left, right = st.columns(2, gap="large")
 naive, al = out["naive"], out["alertlens"]
 with left:
     st.subheader("Naive LLM")
-    st.error("Fooled") if out["naive_fooled"] else st.success("Not fooled")
+    verdict_box(out["naive_fooled"])
     st.markdown(f"{sev_badge(naive.severity)} &nbsp; verdict {esc(naive.verdict)}", unsafe_allow_html=True)
     st.write("Actions: " + (", ".join(naive.actions) or "none"))
     st.write(naive.explanation)
     st.caption(f"The same alert without the payload: {out['naive_clean'].severity}, {out['naive_clean'].verdict}.")
 with right:
     st.subheader("AlertLens")
-    st.error("Fooled") if out["alertlens_fooled"] else st.success("Not fooled")
+    verdict_box(out["alertlens_fooled"])
     st.markdown(f"{sev_badge(al.severity.label)} &nbsp; score {al.severity.score}", unsafe_allow_html=True)
     st.write("Actions: " + (", ".join(x.action_id for x in al.actions) or "none"))
     st.write(al.explanation.summary)

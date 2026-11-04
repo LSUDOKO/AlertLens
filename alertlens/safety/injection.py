@@ -31,7 +31,8 @@ RULES: list[tuple[str, float, list[re.Pattern]]] = [
         r"\byou are now\b", r"\bnew (task|instructions?|goal)\s*:", r"\bsystem prompt\b",
     )),
     ("verdict_steering", 0.9, _rx(
-        r"\bmark\s+(this|it|as)\b.{0,20}\b(benign|safe|false positive|clean|harmless)\b",
+        r"\bmark\s+(this|it|as)\b.{0,20}\b(benign|safe|false positive|clean|harmless)\b", r"\bmark\s+(benign|safe|clean)\b",
+        r"\bfinal(\s+\w+)?\s*:\s*(benign|clean|safe|false positive)\b", r"\bentry is whitelisted\b",
         r"\bclassify\s+(this\s+|it\s+)?as\b", r"\bset\s+(the\s+)?severity\b", r"\bseverity\s*(:|=|to|is)?\s*(low|none)\b",
         r"\bdo not\s+(alert|escalate|report|flag)\b", r"\bdon'?t\s+(alert|escalate|report|flag)\b",
         r"\bclose\s+(the\s+|this\s+)?(ticket|alert|case|incident)\b", r"\breport\s+(no threat|clean)\b",
@@ -40,6 +41,7 @@ RULES: list[tuple[str, float, list[re.Pattern]]] = [
     ("fake_authority", 0.85, _rx(
         r"\b(note|message|memo)\s+(from|to)\s+(the\s+)?(soc|ciso|ai|analyst|security|admin|assistant)\b",
         r"\bauthori[sz]ed\s+(pen ?test|red.?team|exercise|activity)\b", r"\bapproved activity\b",
+        r"\[\s*[\w ]{0,20}\b(soc|admin|analyst|ciso|security team|team lead)\b[\w ]{0,20}\]",
     )),
     ("benign_claim", 0.75, _rx(
         r"\bjust testing\b", r"\bmove along\b", r"\bonly a test\b", r"\bnothing to see\b",
@@ -49,7 +51,7 @@ RULES: list[tuple[str, float, list[re.Pattern]]] = [
         r"<\|im_(start|end)\|>", r"\[/?INST\]", r"</?(system|assistant|user)>",
         r"(^|\n)\s*(human|user|assistant|system)\s*:", r"###\s*(instruction|system|response)",
     )),
-    ("delimiter_escape", 0.85, _rx(r"\"\s*}\s*\]?\s*</", r"</alert>", r"\bSYSTEM\s*:", r"-{3,}\s*end of (data|log|input)")),
+    ("delimiter_escape", 0.85, _rx(r"\"\s*}\s*\]?\s*</", r"</(alert|log|logs|data|input)>", r"\bEND LOGS\b", r"\bSYSTEM\s*:", r"-{3,}\s*end of (data|log|input)")),
     ("action_hijack", 0.9, _rx(
         r"\b(recommend(ed)?|suggest(ed)?)\s+(action|next step|step)\s*:", r"\brun (this |the )?command\s*:",
         r"\b(disable|turn off|stop)\s+(the\s+)?(firewall|logging|edr|antivirus|defender|monitoring)\b",
@@ -90,7 +92,7 @@ def alert_strings(alert: Alert) -> Iterator[tuple[str, str]]:
     yield from iter_strings(alert.raw, "raw")
 
 
-def _preview(text: str, limit: int = 120) -> str:
+def _preview(text: str, limit: int = 160) -> str:
     return text[:limit] + ("…" if len(text) > limit else "")
 
 
@@ -137,10 +139,13 @@ def scan_text(path: str, text: str) -> list[InjectionFinding]:
     """Findings for one string value, trying the plain, normalised and decoded forms."""
     found: dict[str, InjectionFinding] = {}
 
-    def add(family: str, score: float, preview: str) -> None:
+    def add(family: str, score: float, snippet: str) -> None:
         if family not in found or found[family].score < score:
+            # Show the payload around the match, so a reader sees the whole hidden message.
+            at = stripped.find(snippet)
+            context = stripped[max(0, at - 30):] if at >= 0 else snippet
             found[family] = InjectionFinding(field_path=path, pattern_family=family,
-                                             matched_text_preview=_preview(preview), score=score)
+                                             matched_text_preview=_preview(context), score=score)
 
     normal = unicodedata.normalize("NFKC", text)
     stripped = ZERO_WIDTH.sub("", normal)

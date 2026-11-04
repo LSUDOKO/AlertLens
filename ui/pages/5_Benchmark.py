@@ -32,8 +32,8 @@ b.metric("Attack success, AlertLens", f"{100 * r['asr']['alertlens']:.1f}%")
 c.metric("Misses caused by the injection", f"{100 * r['asr']['alertlens_injection_caused']:.1f}%")
 d.metric("Non-playbook actions", f"{100 * r['unsafe_actions']['alertlens']:.1f}%")
 st.subheader("Ablations: what breaks when a layer is removed")
-st.dataframe([{"Configuration": x["name"], "Attack success": x["asr"], "Downplaying text shown": x["downplayed_explanations"],
-               "Invented address shown": x["invented_ip_shown"], "Canary shown to reader": x["canary_shown"]} for x in r["ablations"]],
+st.dataframe([{"Configuration": x["name"], "Attack success": f"{100 * x['asr']:.1f}%", "Downplaying text shown": f"{100 * x['downplayed_explanations']:.1f}%",
+               "Invented address shown": f"{100 * x['invented_ip_shown']:.1f}%", "Canary shown to reader": x["canary_shown"]} for x in r["ablations"]],
              hide_index=True, width="stretch")
 for name, cap in [("asr_by_family", "Attack success by family"), ("reliability", "Calibration"), ("confusion", "Verdicts"), ("latency", "Latency")]:
     png = out / "charts" / f"{name}.png"

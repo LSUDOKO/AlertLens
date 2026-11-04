@@ -42,6 +42,7 @@ def feed() -> None:
     left, right = st.columns(2)
     trend = df.assign(ts=pd.to_datetime(df["ts"], format="ISO8601", utc=True)).sort_values("ts")
     fig = px.scatter(trend, x="ts", y="score", color="label", color_discrete_map=SEVERITY, title="Severity over time",
+                     category_orders={"label": ["critical", "high", "medium", "low"]},
                      labels={"ts": "Alert time", "score": "Score", "label": "Severity"})
     heat = df.explode("tactics").dropna(subset=["tactics"])
     style = dict(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font_color="#ECE9F5", height=340)
@@ -49,7 +50,8 @@ def feed() -> None:
     left.plotly_chart(fig, width="stretch", key="trend")
     if not heat.empty:
         matrix = heat.groupby(["tactics", "label"]).size().unstack(fill_value=0)
-        hm = px.imshow(matrix, text_auto=True, aspect="auto", title="ATT&CK tactics by severity", color_continuous_scale="Purples",
+        matrix = matrix[[c for c in ["low", "medium", "high", "critical"] if c in matrix.columns]]
+        hm = px.imshow(matrix, text_auto=True, aspect="auto", title="ATT&CK tactics by severity", color_continuous_scale=["#22263D", "#A9B8FF"],
                        labels={"x": "Severity", "y": "Tactic", "color": "Alerts"})
         hm.update_layout(**style)
         right.plotly_chart(hm, width="stretch", key="heat")

@@ -45,8 +45,11 @@ with st.expander("Agent debate"):
                 st.markdown(f"**{esc(aid)}**", unsafe_allow_html=True)
                 debate_block(a["agent_transcript"])
 st.subheader("Export report")
-cols = st.columns(4)
-for col, (fmt, lang, label) in zip(cols, [("md", "en", "Markdown"), ("html", "en", "HTML"), ("pdf", "en", "PDF"), ("html", "hi", "HTML, हिन्दी")],
-                                   strict=True):
-    body, media, name = build_report(choice, fmt, lang)
-    col.download_button(label, body, file_name=name, mime=media, key=f"dl_{fmt}_{lang}")
+FORMATS = {"PDF": ("pdf", "en"), "HTML": ("html", "en"), "Markdown": ("md", "en"), "HTML, हिन्दी": ("html", "hi")}
+kind = st.radio("Format", list(FORMATS), horizontal=True)
+if st.button("Prepare report"):
+    st.session_state["report"] = (choice, kind, build_report(choice, *FORMATS[kind]))
+ready = st.session_state.get("report")
+if ready and ready[:2] == (choice, kind):
+    body, media, name = ready[2]
+    st.download_button(f"Download {name}", body, file_name=name, mime=media)
