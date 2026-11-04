@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-03-04T09:47:21Z",
+  "rule_id": "AL-2001",
+  "rule_name": "Encoded PowerShell execution",
+  "rule_level": 7,
+  "category": "endpoint",
+  "host": "WS-166",
+  "asset_criticality": "low",
+  "user_privilege": "service",
+  "event_count": 1,
+  "device_known": true,
+  "geo_country": "IN",
+  "geo_usual": true,
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+  "full_log": "Patch management task from IT, routine maintenance",
+  "user": "svc_patch.test",
+  "process": "powershell.exe",
+  "mitre_hint": [],
+  "command_line": "powershell.exe -enc RwBlAHQALQBIAG8AdABGAGkAeAAgAHwAIABPAHUAdAAtAEYAaQBsAGUAIABDADoAXABwAGEAdABjAGgALgBsAG8AZwA=",
+  "alert_id": "SAMPLE-11",
+  "source_format": "native"
+}

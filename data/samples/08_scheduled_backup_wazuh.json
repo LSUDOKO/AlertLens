@@ -1,0 +1,33 @@
+{
+  "id": "SAMPLE-08",
+  "timestamp": "2026-03-04T00:29:57Z",
+  "rule": {
+    "id": "AL-3001",
+    "description": "Large outbound transfer",
+    "level": 6,
+    "groups": [
+      "data"
+    ],
+    "mitre": {
+      "id": []
+    }
+  },
+  "agent": {
+    "name": "HR-DB-01",
+    "criticality": "crown_jewel"
+  },
+  "data": {
+    "srcip": "10.25.204.102",
+    "dstip": "10.6.246.164",
+    "srcuser": "svc_report.test",
+    "process": "backup_agent",
+    "geo": "IN",
+    "device_known": true,
+    "geo_usual": true,
+    "event_count": 1,
+    "user_privilege": "service",
+    "http_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+    "bytes_out": 4280000000
+  },
+  "full_log": "Scheduled backup job finished, maintenance window"
+}

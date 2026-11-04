@@ -1,0 +1,17 @@
+{
+  "alert_id": "HERO-4",
+  "source_format": "native",
+  "timestamp": "2026-03-03T02:40:00Z",
+  "rule_id": "AL-3001",
+  "rule_name": "Large outbound transfer",
+  "rule_level": 10,
+  "category": "data",
+  "host": "FIN-DB-01",
+  "asset_criticality": "crown_jewel",
+  "dst_ip": "198.51.100.77",
+  "bytes_out": 1800000000,
+  "mitre_hint": [
+    "T1048"
+  ],
+  "full_log": "1.8 GB sent from FIN-DB-01 to an external address"
+}

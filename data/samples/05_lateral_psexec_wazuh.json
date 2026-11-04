@@ -1,0 +1,36 @@
+{
+  "id": "SAMPLE-05",
+  "timestamp": "2026-03-03T22:35:17Z",
+  "rule": {
+    "id": "AL-2004",
+    "description": "Remote service execution with PsExec-like tool",
+    "level": 10,
+    "groups": [
+      "endpoint"
+    ],
+    "mitre": {
+      "id": [
+        "T1021.002",
+        "T1569.002"
+      ]
+    }
+  },
+  "agent": {
+    "name": "WS-237",
+    "criticality": "low"
+  },
+  "data": {
+    "srcip": "10.27.142.182",
+    "dstip": "10.26.183.176",
+    "srcuser": "emp056.test",
+    "process": "psexesvc.exe",
+    "command": "psexec \\\\SRV-01 -s cmd.exe",
+    "geo": "IN",
+    "device_known": true,
+    "geo_usual": true,
+    "event_count": 1,
+    "user_privilege": "standard",
+    "http_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
+  },
+  "full_log": "Remote service execution with PsExec-like tool observed on sensor"
+}

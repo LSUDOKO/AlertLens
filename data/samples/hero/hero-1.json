@@ -1,0 +1,24 @@
+{
+  "alert_id": "HERO-1",
+  "timestamp": "2026-03-03T02:13:00Z",
+  "rule_id": "AL-1001",
+  "rule_name": "Multiple failed logins",
+  "rule_level": 9,
+  "event_count": 40,
+  "device_known": false,
+  "outcome": "failure",
+  "mitre_hint": [
+    "T1110"
+  ],
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+  "full_log": "40 failed logins for finance.admin.test",
+  "category": "authentication",
+  "user": "finance.admin.test",
+  "src_ip": "203.0.113.45",
+  "host": "VPN-GW-01",
+  "asset_criticality": "high",
+  "user_privilege": "admin",
+  "geo_usual": false,
+  "geo_country": "RU",
+  "source_format": "native"
+}

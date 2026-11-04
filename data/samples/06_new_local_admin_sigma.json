@@ -1,0 +1,30 @@
+{
+  "sigma_rule": {
+    "id": "AL-2003",
+    "title": "New local administrator account created",
+    "score": 11,
+    "logsource": "endpoint",
+    "tags": [
+      "T1136",
+      "T1098"
+    ]
+  },
+  "alert_id": "SAMPLE-06",
+  "matched_at": "2026-03-04T02:14:42Z",
+  "event": {
+    "host": "WS-187",
+    "asset_criticality": "low",
+    "user_privilege": "admin",
+    "event_count": 1,
+    "device_known": true,
+    "geo_country": "IN",
+    "geo_usual": true,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+    "full_log": "New local administrator account created observed on sensor",
+    "user": "emp105.test",
+    "target_user": "tmp2.test",
+    "process": "net.exe",
+    "command_line": "net localgroup administrators tmp /add",
+    "outcome": "success"
+  }
+}

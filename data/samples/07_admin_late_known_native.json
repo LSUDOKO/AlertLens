@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-03-06T04:00:09Z",
+  "rule_id": "AL-1005",
+  "rule_name": "Admin login outside business hours",
+  "rule_level": 7,
+  "category": "authentication",
+  "host": "WS-327",
+  "asset_criticality": "low",
+  "user_privilege": "admin",
+  "event_count": 1,
+  "device_known": true,
+  "geo_country": "IN",
+  "geo_usual": true,
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+  "full_log": "Admin login outside business hours observed on sensor",
+  "user": "db.admin.test",
+  "src_ip": "10.34.189.158",
+  "outcome": "success",
+  "mitre_hint": [
+    "T1078"
+  ],
+  "alert_id": "SAMPLE-07",
+  "source_format": "native"
+}

@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-03-07T02:39:07Z",
+  "rule_id": "AL-3001",
+  "rule_name": "Large outbound transfer",
+  "rule_level": 9,
+  "category": "data",
+  "host": "SRV-07",
+  "asset_criticality": "high",
+  "user_privilege": "standard",
+  "event_count": 1,
+  "device_known": true,
+  "geo_country": "IN",
+  "geo_usual": true,
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
+  "full_log": "Large outbound transfer observed on sensor",
+  "src_ip": "10.3.111.198",
+  "dst_ip": "198.51.100.133",
+  "bytes_out": 2828000000,
+  "user": "emp189.test",
+  "mitre_hint": [
+    "T1048"
+  ],
+  "alert_id": "SAMPLE-04",
+  "source_format": "native"
+}

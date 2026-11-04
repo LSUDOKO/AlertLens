@@ -1,0 +1,42 @@
+{
+  "flow_id": "SAMPLE-03",
+  "timestamp": "2026-03-05T22:03:52Z",
+  "event_type": "alert",
+  "src_ip": "10.19.228.74",
+  "dest_ip": "203.0.113.198",
+  "alert": {
+    "signature_id": "AL-3002",
+    "signature": "Suspicious DNS query pattern",
+    "level": 6,
+    "category": "network",
+    "metadata": {
+      "mitre": [
+        "T1071.004"
+      ]
+    }
+  },
+  "http": {
+    "url": null,
+    "http_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
+  },
+  "dns": {
+    "rrname": "d1b6b1be37ed3fd05dcb097488531f1c39483cd7f4e97bc44598cc29cb.example.org"
+  },
+  "host": "WS-473",
+  "user": null,
+  "process": "unknown",
+  "command_line": null,
+  "full_log": "Suspicious DNS query pattern observed on sensor",
+  "context": {
+    "asset_criticality": "low",
+    "user_privilege": "standard",
+    "event_count": 207,
+    "device_known": true,
+    "geo_country": "IN",
+    "geo_usual": true,
+    "bytes_out": null,
+    "file_hash": null,
+    "outcome": null,
+    "target_user": null
+  }
+}

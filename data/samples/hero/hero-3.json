@@ -1,0 +1,25 @@
+{
+  "alert_id": "HERO-3",
+  "source_format": "native",
+  "timestamp": "2026-03-03T02:21:00Z",
+  "rule_id": "AL-2003",
+  "rule_name": "New local administrator account created",
+  "rule_level": 11,
+  "category": "endpoint",
+  "user": "finance.admin.test",
+  "target_user": "support_tmp.test",
+  "host": "FIN-DB-01",
+  "asset_criticality": "crown_jewel",
+  "user_privilege": "admin",
+  "process": "net.exe",
+  "outcome": "success",
+  "command_line": "net localgroup administrators support_tmp.test /add",
+  "mitre_hint": [
+    "T1136",
+    "T1098"
+  ],
+  "device_known": false,
+  "geo_country": "RU",
+  "geo_usual": false,
+  "full_log": "Local admin support_tmp.test created"
+}

@@ -1,0 +1,40 @@
+{
+  "flow_id": "SAMPLE-09",
+  "timestamp": "2026-03-03T15:10:07Z",
+  "event_type": "alert",
+  "src_ip": "198.51.100.11",
+  "dest_ip": "10.3.52.2",
+  "alert": {
+    "signature_id": "AL-3003",
+    "signature": "Port scan detected",
+    "level": 5,
+    "category": "network",
+    "metadata": {
+      "mitre": []
+    }
+  },
+  "http": {
+    "url": null,
+    "http_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
+  },
+  "dns": {
+    "rrname": null
+  },
+  "host": "FIN-DB-01",
+  "user": null,
+  "process": "scanner",
+  "command_line": null,
+  "full_log": "Weekly vulnerability assessment run",
+  "context": {
+    "asset_criticality": "crown_jewel",
+    "user_privilege": "standard",
+    "event_count": 1360,
+    "device_known": true,
+    "geo_country": "IN",
+    "geo_usual": true,
+    "bytes_out": null,
+    "file_hash": null,
+    "outcome": null,
+    "target_user": null
+  }
+}
