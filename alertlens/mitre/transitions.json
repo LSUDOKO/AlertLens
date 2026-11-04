@@ -1,0 +1,14 @@
+{
+ "Initial Access": {"Execution": 0.3, "Persistence": 0.25, "Discovery": 0.2, "Privilege Escalation": 0.15, "Credential Access": 0.1},
+ "Execution": {"Persistence": 0.25, "Defense Evasion": 0.25, "Discovery": 0.2, "Credential Access": 0.15, "Command and Control": 0.15},
+ "Persistence": {"Privilege Escalation": 0.35, "Lateral Movement": 0.25, "Defense Evasion": 0.2, "Discovery": 0.1, "Collection": 0.1},
+ "Privilege Escalation": {"Defense Evasion": 0.3, "Credential Access": 0.25, "Lateral Movement": 0.25, "Discovery": 0.2},
+ "Defense Evasion": {"Credential Access": 0.25, "Discovery": 0.25, "Lateral Movement": 0.25, "Collection": 0.15, "Impact": 0.1},
+ "Credential Access": {"Initial Access": 0.2, "Lateral Movement": 0.3, "Privilege Escalation": 0.2, "Discovery": 0.15, "Persistence": 0.15},
+ "Discovery": {"Lateral Movement": 0.4, "Collection": 0.3, "Credential Access": 0.2, "Command and Control": 0.1},
+ "Lateral Movement": {"Collection": 0.35, "Credential Access": 0.2, "Persistence": 0.2, "Exfiltration": 0.15, "Impact": 0.1},
+ "Collection": {"Exfiltration": 0.6, "Command and Control": 0.25, "Impact": 0.15},
+ "Command and Control": {"Collection": 0.3, "Lateral Movement": 0.25, "Exfiltration": 0.25, "Discovery": 0.2},
+ "Exfiltration": {"Impact": 0.55, "Defense Evasion": 0.35, "Persistence": 0.1},
+ "Impact": {"Defense Evasion": 0.6, "Exfiltration": 0.4}
+}
