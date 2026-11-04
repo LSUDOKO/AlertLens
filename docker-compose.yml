@@ -1,0 +1,14 @@
+services:
+  alertlens:
+    build: .
+    # The API has no login, so publish it on this machine only.
+    ports:
+      - "127.0.0.1:8501:8501"
+      - "127.0.0.1:8000:8000"
+    environment:
+      - LLM_PROVIDER=${LLM_PROVIDER:-mock}
+    volumes:
+      - alertlens-data:/data
+
+volumes:
+  alertlens-data:

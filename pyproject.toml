@@ -1,0 +1,21 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["alertlens"]
+
+[tool.ruff]
+line-length = 170
+target-version = "py311"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008", "UP017"]  # FastAPI defaults; datetime.timezone.utc works on 3.10 readers too
+
+[tool.ruff.lint.per-file-ignores]
+"alertlens/render/i18n.py" = ["E501"]
+"ui/*" = ["E501"]
+"tests/*" = ["E501"]

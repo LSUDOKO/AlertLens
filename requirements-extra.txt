@@ -1,0 +1,2 @@
+# Optional. Not needed for the default offline demo.
+sentence-transformers  # EMBEDDINGS=minilm
