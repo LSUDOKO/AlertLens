@@ -32,20 +32,33 @@ def test_every_sample_analyses(db_path):
         assert r.audit_seq > 0
 
 
-def test_ambiguous_admin_login_gets_a_critic_objection():
-    alert = {"alert_id": "AMB", "rule_id": "AL-1005", "rule_name": "Admin login outside business hours", "rule_level": 8,
-             "category": "authentication", "user": "it.admin.test", "user_privilege": "admin", "src_ip": "10.0.0.4", "host": "APP-02",
-             "device_known": True, "geo_usual": True, "geo_country": "IN", "timestamp": "2026-03-02T02:00:00Z", "outcome": "success"}
-    # Force the band-sized probability the critic exists for by reading the debate directly.
+def test_critic_raises_the_benign_explanation_when_the_model_is_unsure():
+    """Hand-set probability, so this holds whatever the small test model scores."""
     from alertlens.agents.coordinator import investigate
     from alertlens.llm.mock import MockLLM
+
     payload = {"alert": {"alert.category": "authentication", "alert.device_known": True, "alert.geo_usual": True,
                          "alert.privilege": "admin", "alert.off_hours": True},
                "severity": {"severity.p_malicious": 0.4}, "context": {}, "sanitise": {}}
     debate = investigate(payload, MockLLM())
     assert debate.objection and debate.confidence_factor < 1 and debate.final_verdict == "needs human review"
     assert "known device" in debate.transcript[2]["reasons"]
-    assert analyze(alert, Options(deep=True, persist=False)).agent_transcript
+
+
+def test_ambiguous_admin_login_through_the_real_pipeline():
+    """The rule says impossible travel, while the device and location look normal, at 2 AM."""
+    r = analyze(load_samples()["12_ambiguous_admin_login_native.json"], Options(deep=True, persist=False))
+    critic = next(t for t in r.agent_transcript if t["agent"] == "Critic")
+    p = r.severity.p_malicious
+    assert 0.1 <= p <= 0.9
+    assert critic["objection_strength"] >= 0.5 and "known device" in critic["reasons"] and "usual location" in critic["reasons"]
+    assert r.severity.triage == "needs_human" and r.severity.confidence < max(p, 1 - p)
+    assert any(e["type"] == "critic_objection" for e in r.security_events)
+
+
+def test_clear_cut_benign_admin_login_draws_no_objection():
+    r = analyze(load_samples()["07_admin_late_known_native.json"], Options(deep=True, persist=False))
+    assert next(t for t in r.agent_transcript if t["agent"] == "Critic")["objection_strength"] == 0
 
 
 def test_objection_lowers_confidence_and_routes_to_human(monkeypatch):

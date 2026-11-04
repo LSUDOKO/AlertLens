@@ -6,8 +6,10 @@ import plotly.express as px
 import streamlit as st
 
 from alertlens.config import ROOT
+from alertlens.correlation.correlator import correlate
 from alertlens.memory import store as db
 from alertlens.pipeline.orchestrator import Options, analyze
+from alertlens.schemas import Alert
 from ui.common import SEVERITY, setup, show_kpis
 
 setup("Live feed")
@@ -55,6 +57,13 @@ def feed() -> None:
                        labels={"x": "Severity", "y": "Tactic", "color": "Alerts"})
         hm.update_layout(**style)
         right.plotly_chart(hm, width="stretch", key="heat")
+    with db.db() as conn:
+        recent = [Alert.model_validate_json(r[0]) for r in conn.execute("SELECT body FROM alerts ORDER BY ts DESC LIMIT 300")]
+    groups = [g for g in correlate(recent) if len(g) > 1]
+    st.subheader(f"{len(groups)} groups of linked alerts")
+    st.dataframe([{"First alert": g[0].timestamp.isoformat()[:19], "Alerts": len(g), "Linked IDs": ", ".join(a.alert_id for a in g)[:120]}
+                  for g in sorted(groups, key=len, reverse=True)[:8]], hide_index=True, width="stretch")
+    st.subheader("Latest alerts")
     st.dataframe(df[["ts", "alert_id", "label", "score", "route", "injected"]].head(25), hide_index=True, width="stretch")
 
 

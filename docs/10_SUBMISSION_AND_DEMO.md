@@ -58,7 +58,7 @@ Prep: two machines (or a backup video ready), mock mode on, DB pre-seeded, brows
 
 1. **(0:30) Hook:** the problem plus the one-sentence pitch
 2. **(1:30) Red-Team Lab live:** let a judge **choose** the injection family and field, then attack. Show the layer that caught it.
-3. **(1:15) Incident story:** graph, pivot, next steps, agent debate where the critic disagrees
+3. **(1:15) Incident story:** graph, pivot, next steps, agent debate where the critic disagrees (the hero incident has no objection, because a chain of alerts outweighs the innocent story; show the critic on sample `12_ambiguous_admin_login_native.json` with Force the LLM path)
 4. **(0:45) Safe action:** dry run, approve, audit log entry, then "Verify integrity", then the tamper demo
 5. **(0:30) Proof:** benchmark headline + ablation (what breaks if we remove a layer)
 6. **(0:30) Close:** limitations stated honestly + what's next

@@ -202,6 +202,12 @@ def write_samples(out: Path = Path("data/samples")) -> None:
         canon = sc.ALL_SCENARIOS[name](r)[0][0]
         canon["alert_id"] = f"SAMPLE-{i + 1:02d}"
         (out / f"{i + 1:02d}_{name}_{fmt}.json").write_text(json.dumps(to_vendor(canon, fmt), indent=2))
+    # The rule says impossible travel, but the device and location look normal: the critic's case.
+    ambiguous = {"alert_id": "SAMPLE-12", "timestamp": "2026-03-02T02:00:00Z", "rule_id": "AL-1004", "rule_name": "Impossible travel login",
+                 "rule_level": 10, "category": "authentication", "user": "it.admin.test", "user_privilege": "admin", "src_ip": "10.0.0.4",
+                 "host": "APP-02", "asset_criticality": "medium", "device_known": True, "geo_usual": True, "geo_country": "IN",
+                 "outcome": "success", "mitre_hint": ["T1078"], "full_log": "Admin login at 02:00 from the usual country"}
+    (out / "12_ambiguous_admin_login_native.json").write_text(json.dumps(to_vendor(ambiguous, "native"), indent=2))
 
 
 def main() -> None:
