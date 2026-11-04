@@ -1,0 +1,26 @@
+# {{ t.title }}: {{ i.incident_id }}
+
+**{{ t.severity }}:** {{ i.severity.label }} ({{ i.severity.score }})
+
+{{ i.graph_summary }} **{{ t.pivot }}:** {{ i.pivot }}
+
+## {{ t.timeline }}
+| {{ t.time }} | {{ t.what }} | {{ t.tactic }} | {{ t.severity }} |
+|---|---|---|---|
+{% for r in i.timeline %}| {{ r.ts[:19] }} | {{ r.what }} | {{ r.tactic }} | {{ r.label }} |
+{% endfor %}
+## {{ t.next }}
+{% for r in i.predicted_next %}- **{{ r.tactic }}**: {{ r.watch_for }}
+{% endfor %}
+_{{ t.note }}_
+
+## {{ t.explain }}
+{% for v in views %}**{{ v.alert_id }}.** {{ v.what }} {{ v.why }}
+
+{% endfor %}
+## {{ t.actions }}
+{% for a in actions %}- [{{ a.status }}] {{ a.title }}. {{ a.dry_run_preview }} Rollback: {{ a.rollback }}
+{% endfor %}
+## {{ t.audit }}
+{% for r in audit %}- #{{ r.seq }} {{ r.ts[:19] }} {{ r.actor }} {{ r.event }}
+{% endfor %}

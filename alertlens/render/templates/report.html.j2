@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="{{ lang }}"><head><meta charset="utf-8"><title>{{ t.title }} {{ i.incident_id }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Noto Sans Devanagari',system-ui,sans-serif;max-width:860px;margin:32px auto;padding:0 16px;color:#1b2430;line-height:1.55}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #dde3ea;padding:6px 8px;text-align:left;font-size:14px}
+img{max-width:100%}.sev{font-weight:600}.note{color:#5b6673;font-size:14px}
+</style></head><body>
+<h1>{{ t.title }}: {{ i.incident_id }}</h1>
+<p class="sev">{{ t.severity }}: {{ i.severity.label }} ({{ i.severity.score }})</p>
+<p>{{ i.graph_summary }} <b>{{ t.pivot }}:</b> {{ i.pivot }}</p>
+<h2>{{ t.timeline }}</h2>
+<table><tr><th>{{ t.time }}</th><th>{{ t.what }}</th><th>{{ t.tactic }}</th><th>{{ t.severity }}</th></tr>
+{% for r in i.timeline %}<tr><td>{{ r.ts[:19] }}</td><td>{{ r.what }}</td><td>{{ r.tactic }}</td><td>{{ r.label }}</td></tr>{% endfor %}</table>
+<h2>{{ t.graph }}</h2><img alt="{{ t.graph }}" src="data:image/png;base64,{{ graph_b64 }}">
+<h2>{{ t.next }}</h2><ul>{% for r in i.predicted_next %}<li><b>{{ r.tactic }}:</b> {{ r.watch_for }}</li>{% endfor %}</ul>
+<p class="note">{{ t.note }}</p>
+<h2>{{ t.explain }}</h2>{% for v in views %}<p><b>{{ v.alert_id }}.</b> {{ v.what }} {{ v.why }}</p>{% endfor %}
+<h2>{{ t.actions }}</h2><table>{% for a in actions %}<tr><td>{{ a.status }}</td><td>{{ a.title }}</td><td>{{ a.dry_run_preview }}</td><td>{{ a.rollback }}</td></tr>{% endfor %}</table>
+<h2>{{ t.audit }}</h2><table>{% for r in audit %}<tr><td>#{{ r.seq }}</td><td>{{ r.ts[:19] }}</td><td>{{ r.actor }}</td><td>{{ r.event }}</td></tr>{% endfor %}</table>
+</body></html>
