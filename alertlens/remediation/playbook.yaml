@@ -1,0 +1,123 @@
+# The only actions AlertLens can ever propose. Nothing here runs: every action is a simulated dry run.
+- id: disable_user_session
+  title: Disable the user's active sessions
+  description: End live sessions so a stolen login stops working.
+  applies_to_techniques: [T1110, T1110.004, T1078, T1078.004, T1136, T1098]
+  min_severity: medium
+  risk_level: medium
+  reversible: true
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would end sessions for {user}. Synthetic inventory shows 2 active sessions."
+  rollback_template: "The user signs in again after the password check."
+- id: reset_user_password
+  title: Reset the user's password
+  description: Replace a credential that may be known to an attacker.
+  applies_to_techniques: [T1110, T1110.004, T1078]
+  min_severity: medium
+  risk_level: medium
+  reversible: false
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would issue a password reset for {user} and notify them."
+  rollback_template: "Not reversible. The user sets a new password through the help desk."
+- id: force_mfa_reenrol
+  title: Force MFA re-enrolment
+  description: Require the user to register their second factor again.
+  applies_to_techniques: [T1110, T1110.004, T1078]
+  min_severity: medium
+  risk_level: low
+  reversible: true
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would require {user} to re-enrol MFA at next login."
+  rollback_template: "Restore the previous MFA registration from the identity admin console."
+- id: disable_user
+  title: Disable the user account
+  description: Block all logins for the account.
+  applies_to_techniques: [T1136, T1098, T1078.004]
+  min_severity: high
+  risk_level: high
+  reversible: true
+  requires_approval: true
+  two_step: true
+  dry_run_template: "Would disable account {user}. Synthetic inventory shows 1 owned service."
+  rollback_template: "Re-enable the account in the directory."
+- id: isolate_host
+  title: Isolate the host from the network
+  description: Cut the host off, keeping only the management channel.
+  applies_to_techniques: [T1136, T1098, T1048, T1059.001, T1027, T1105, T1021.002, T1569.002, T1071.004]
+  min_severity: high
+  risk_level: high
+  reversible: true
+  requires_approval: true
+  two_step: true
+  dry_run_template: "Would isolate {host}. Synthetic inventory lists 3 dependent services."
+  rollback_template: "Remove the isolation policy from {host}."
+- id: block_ip_at_firewall
+  title: Block the address at the firewall
+  description: Deny traffic to and from the address.
+  applies_to_techniques: [T1110, T1110.004, T1078, T1048, T1105, T1071.004]
+  min_severity: medium
+  risk_level: medium
+  reversible: true
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would add a deny rule for {ip} on the perimeter firewall."
+  rollback_template: "Remove the deny rule for {ip}."
+- id: quarantine_file
+  title: Quarantine the file
+  description: Move a suspicious file where it cannot run.
+  applies_to_techniques: [T1105, T1059.001, T1027]
+  min_severity: medium
+  risk_level: low
+  reversible: true
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would quarantine the file on {host}, hash {hash}."
+  rollback_template: "Restore the file from quarantine."
+- id: collect_forensics
+  title: Collect forensic evidence
+  description: Snapshot memory and logs for investigation.
+  applies_to_techniques: ["*"]
+  min_severity: medium
+  risk_level: low
+  reversible: true
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would collect a memory and log snapshot from {host}."
+  rollback_template: "Delete the snapshot once the case closes."
+- id: notify_user
+  title: Notify the user
+  description: Tell the account owner and ask whether this was them.
+  applies_to_techniques: [T1078, T1110, T1110.004]
+  min_severity: low
+  risk_level: low
+  reversible: false
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would send {user} a message asking them to confirm the activity."
+  rollback_template: "Not reversible. Send a follow-up message."
+- id: escalate_to_tier2
+  title: Escalate to Tier 2
+  description: Hand the case to a senior analyst.
+  applies_to_techniques: ["*"]
+  min_severity: medium
+  risk_level: low
+  reversible: true
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would open a Tier 2 case with this analysis attached."
+  rollback_template: "Return the case to the Tier 1 queue."
+- id: close_as_benign
+  title: Close as benign
+  description: Suggest closing after a person confirms.
+  applies_to_techniques: ["*"]
+  min_severity: low
+  max_severity: low
+  risk_level: low
+  reversible: true
+  requires_approval: true
+  two_step: false
+  dry_run_template: "Would close this alert as benign, with the reviewer's name recorded."
+  rollback_template: "Reopen the alert."
