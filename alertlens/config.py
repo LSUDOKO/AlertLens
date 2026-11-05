@@ -44,6 +44,11 @@ class Settings:
     rule_weights_path: str = str(ROOT / "models" / "rule_weights.json")
 
 
+def is_hosted_demo(root: Path = ROOT) -> bool:
+    """Streamlit Community Cloud checks repos out under /mount/src. Lock shared state there unless told otherwise."""
+    return str(root).startswith("/mount/src/")
+
+
 def load_settings() -> Settings:
     return Settings(
         llm_provider=_env("LLM_PROVIDER", "mock"),
@@ -57,7 +62,7 @@ def load_settings() -> Settings:
         feature_multi_agent=_flag("FEATURE_MULTI_AGENT", True),
         feature_hindi=_flag("FEATURE_HINDI", True),
         feature_injection_classifier=_flag("FEATURE_INJECTION_CLASSIFIER", True),
-        public_demo=_flag("PUBLIC_DEMO", False),
+        public_demo=_flag("PUBLIC_DEMO", is_hosted_demo()),
         db_path=_env("DB_PATH", "alertlens.db"),
         seed=int(_env("SEED", "42")),
         model_path=_env("MODEL_PATH", str(ROOT / "models" / "severity.joblib")),

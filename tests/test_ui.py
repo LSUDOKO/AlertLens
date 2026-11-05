@@ -99,3 +99,12 @@ def test_public_demo_locks_settings(monkeypatch):
         assert not bench.exception and not [b for b in bench.button if "quick" in b.label]
     finally:
         update_settings(public_demo=False)
+
+
+def test_hosted_demo_is_detected_from_the_cloud_path():
+    from pathlib import Path as P
+
+    from alertlens.config import is_hosted_demo
+
+    assert is_hosted_demo(P("/mount/src/alertlens"))
+    assert not is_hosted_demo(P("/home/someone/AlertLens"))

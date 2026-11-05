@@ -1,7 +1,7 @@
 # AlertLens
 
 **Aegython 2026. Team ID: `TODO`. Challenge: Explain My Security Alert.**
-[Demo video](TODO) · Review tag: `v1.0-submission` (`TODO commit hash`)
+[Live demo](https://alertlens-aegython.streamlit.app/) · [Demo video](TODO) · Review tag: `v1.0-submission` (`TODO commit hash`)
 
 An evidence-grounded security alert explainer, built so that text an attacker plants in a log can't change the verdict.
 
@@ -53,7 +53,7 @@ Captured from the running app with the default offline provider. All data is syn
 | **Audit log**: hash chain check and tamper demo<br>![Audit log](docs/media/audit-log.png) | **Home**: totals and where alerts went<br>![Home page](docs/media/home.png) |
 
 ## Public demo
-The free option is [Streamlit Community Cloud](https://share.streamlit.io): choose this repo, set the main file to `ui/Home.py` and Python to 3.12, and add the secret `PUBLIC_DEMO = "true"`. It uses simulated models. Visitors cannot change settings, retrain the model or run the benchmark.
+The free option is [Streamlit Community Cloud](https://share.streamlit.io): choose this repo, set the main file to `ui/Home.py` and Python to 3.12, and deploy. It uses simulated models. Visitors cannot change settings, retrain the model or run the benchmark. This lock turns on by itself on Streamlit Cloud. Elsewhere, set `PUBLIC_DEMO=true`.
 
 `scripts/deploy_space.sh <username>/alertlens` publishes the same demo as a Hugging Face Docker Space, which needs a paid PRO account.
 
@@ -162,7 +162,7 @@ Copied from [results/benchmark_report.md](results/benchmark_report.md), which `m
 <!-- /results -->
 
 ## Testing
-`make test` runs 293 tests offline with 96% coverage of `alertlens/`, including a Streamlit smoke test of every page. CI runs lint, secret scan and tests on every push.
+`make test` runs 294 tests offline with 96% coverage of `alertlens/`, including a Streamlit smoke test of every page. CI runs lint, secret scan and tests on every push.
 
 ## Project structure
 ```
