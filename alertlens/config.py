@@ -36,7 +36,8 @@ class Settings:
     router_llm_threshold: float = 0.35
     feature_multi_agent: bool = True
     feature_hindi: bool = True
-    feature_injection_classifier: bool = False
+    feature_injection_classifier: bool = True
+    public_demo: bool = False
     db_path: str = "alertlens.db"
     seed: int = 42
     model_path: str = str(ROOT / "models" / "severity.joblib")
@@ -55,7 +56,8 @@ def load_settings() -> Settings:
         router_llm_threshold=float(_env("ROUTER_LLM_THRESHOLD", "0.35")),
         feature_multi_agent=_flag("FEATURE_MULTI_AGENT", True),
         feature_hindi=_flag("FEATURE_HINDI", True),
-        feature_injection_classifier=_flag("FEATURE_INJECTION_CLASSIFIER", False),
+        feature_injection_classifier=_flag("FEATURE_INJECTION_CLASSIFIER", True),
+        public_demo=_flag("PUBLIC_DEMO", False),
         db_path=_env("DB_PATH", "alertlens.db"),
         seed=int(_env("SEED", "42")),
         model_path=_env("MODEL_PATH", str(ROOT / "models" / "severity.joblib")),

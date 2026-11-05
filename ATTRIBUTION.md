@@ -15,6 +15,7 @@ Design inspiration, not reproductions:
 ## Models
 | Model | Source | Card |
 |---|---|---|
+| Injection classifier | Trained here with scikit-learn on the deepset dataset below, public templates and synthetic log text | TF-IDF character n-grams with logistic regression, seed 42. Never trained on the held-out paraphrases. Not validated on real SOC data. |
 | Severity classifier | Trained here with scikit-learn on synthetic data | Gradient boosting with sigmoid calibration, 26 numeric features, seed 42. Not validated on real SOC data. |
 | `MockLLM` | Written here | Deterministic templates, not a real model. |
 | `VulnerableMockLLM` | Written here | Simulates a model that obeys instructions it can read. Benchmark only. |
@@ -29,3 +30,6 @@ Archivo, Atkinson Hyperlegible and Noto Sans Devanagari (SIL Open Font License),
 
 ## Licence
 MIT, see `LICENSE`.
+
+## External dataset
+[deepset/prompt-injections](https://huggingface.co/datasets/deepset/prompt-injections), vendored in `data/external/`. Its card lists Apache-2.0 at the top level and CC-BY-4.0 under `dataset_info`. We removed 36 of 662 rows that matched a word filter for offensive text. No other change.

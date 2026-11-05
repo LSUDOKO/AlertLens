@@ -12,6 +12,7 @@ import re
 import unicodedata
 from collections.abc import Iterator
 
+from alertlens.config import get_settings
 from alertlens.schemas import Alert, InjectionFinding, SanitiseReport
 
 QUARANTINE_THRESHOLD = 0.5
@@ -135,6 +136,10 @@ def _is_identifier_path(path: str) -> bool:
     return path in IDENTIFIER_FIELDS or path.rsplit(".", 1)[-1] in IDENTIFIER_RAW_KEYS
 
 
+def classifier_on() -> bool:
+    return get_settings().feature_injection_classifier
+
+
 def scan_text(path: str, text: str) -> list[InjectionFinding]:
     """Findings for one string value, trying the plain, normalised and decoded forms."""
     found: dict[str, InjectionFinding] = {}
@@ -165,6 +170,11 @@ def scan_text(path: str, text: str) -> list[InjectionFinding]:
         words = len(stripped.split())
         if words > 3 or (words > 1 and re.search(r"[.!?,:;]\s", stripped)):
             add("out_of_place_text", 0.6, stripped)
+    if classifier_on():
+        from alertlens.safety import classifier
+
+        if (p := classifier.score(stripped)) > 0:
+            add("learned_classifier", max(p, QUARANTINE_THRESHOLD), stripped)
     return list(found.values())
 
 

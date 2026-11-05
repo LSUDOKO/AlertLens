@@ -22,6 +22,7 @@ data:
 
 train:
 	$(PY) -m alertlens.scoring.model
+	$(PY) -m alertlens.safety.classifier
 
 seed:
 	$(PY) -m scripts.seed_db
