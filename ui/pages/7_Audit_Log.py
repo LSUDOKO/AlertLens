@@ -1,4 +1,10 @@
 """The hash-chained log, integrity check and tamper demo."""
+import sys
+from pathlib import Path
+
+# Streamlit Cloud does not put the repo root on the import path.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 import sqlite3
 import tempfile
 from pathlib import Path

@@ -1,4 +1,10 @@
 """Replays the synthetic stream at about one alert per second."""
+import sys
+from pathlib import Path
+
+# Streamlit Cloud does not put the repo root on the import path.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 import json
 
 import pandas as pd

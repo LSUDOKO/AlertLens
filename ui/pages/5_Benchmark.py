@@ -1,4 +1,10 @@
 """Shows results written by `make eval`. Numbers come only from those files."""
+import sys
+from pathlib import Path
+
+# Streamlit Cloud does not put the repo root on the import path.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 import json
 
 import streamlit as st

@@ -1,4 +1,10 @@
 """Runtime settings for this UI process. Keys stay in `.env`, and the API process keeps its own settings."""
+import sys
+from pathlib import Path
+
+# Streamlit Cloud does not put the repo root on the import path.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 import streamlit as st
 
 from alertlens.config import get_settings, update_settings
