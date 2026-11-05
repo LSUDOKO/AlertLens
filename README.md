@@ -119,7 +119,7 @@ The first prompt rewrite made things worse in a useful way: the model copied our
 - **Where it fell short:** the detector missed both held-out paraphrases in this sample (0 of 2), and mean grounding on the LLM path was 0.5731. An LLM-path alert took about 115 seconds on CPU.
 - **Fast and deep paths disagreed:** on all 5 alerts re-run on the LLM path, the label or triage differed from the fast path. We only re-ran 5, so this needs more study.
 - **Not a fair verdict score:** the naive prompt scored F1 0 because llama3.2 never answered "malicious" there, so don't read that as its overall detection skill.
-- **Run details:** the report names commit `89a39e1`, its checkout when the run ended. The run started on `0e94f7a`. Only the version string changed in `alertlens/`, `eval/` and `data/` between them.
+- **Run details:** the report names commit `89a39e1`, its checkout when the run ended. The run started on `0e94f7a`. Between them, `alertlens/`, `eval/` and `data/` changed only the version string and the public-demo setting, which don't affect the pipeline.
 
 This model is still weak. It gets `action_type` wrong, and code overrules it. Two of the 5 alerts scored only 0.2 and 0.25. Many kept claims are only partly verified, and the UI marks them as such. This is a small sample, not a measurement of real models in general. The headline results below use the simulated model unless they say otherwise.
 
