@@ -64,7 +64,7 @@ def show_kpis() -> None:
 
 def gauge(score: float, label: str) -> go.Figure:
     fig = go.Figure(go.Indicator(
-        mode="gauge+number", value=score, number={"font": {"size": 44}},
+        mode="gauge+number", value=score, number={"font": {"size": 24}},
         gauge={"axis": {"range": [0, 100]}, "bar": {"color": SEVERITY[label]}, "bgcolor": "#22263D",
                "steps": [{"range": [0, 30], "color": "#262A42"}, {"range": [30, 55], "color": "#2A2D45"},
                          {"range": [55, 78], "color": "#2F3049"}, {"range": [78, 100], "color": "#35304A"}]},

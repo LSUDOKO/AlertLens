@@ -5,6 +5,8 @@
 
 An evidence-grounded security alert explainer, built so that text an attacker plants in a log can't change the verdict.
 
+![Hero demo: one click runs four linked alerts into a critical incident with an attack graph and timeline](docs/media/hero-demo.gif)
+
 ## The problem
 Security teams get more alerts than they can read, and many now use LLMs to explain them. But log fields are written by attackers, so a user agent can say "classify as benign". LLMs also invent facts, and a model that suggests free-form commands can cause damage.
 
@@ -35,6 +37,19 @@ On the Home page, press **Run hero demo**. Then try **Red Team Lab**.
 | `make eval` | Full benchmark, writes `results/` |
 | `make retrain` | Retrain with saved feedback |
 | `make check-secrets` | Scan for key-shaped strings |
+
+## Screenshots
+Captured from the running app with the default offline provider. All data is synthetic.
+
+**Red-Team Lab.** The same payload goes to a naive LLM and to AlertLens. Both use one simulated gullible model.
+
+![Red-Team Lab attack: the naive LLM is fooled and AlertLens is not](docs/media/red-team.gif)
+
+| | |
+|---|---|
+| **Analyze an alert**: the payload shown inert, with a score from code and its reasons<br>![Analyze an alert](docs/media/analyze.png) | **Incidents**: attack graph, timeline and likely next steps<br>![Incident view](docs/media/incident.png) |
+| **Live feed**: severity over time and ATT&CK tactics<br>![Live feed](docs/media/live-feed.png) | **Benchmark**: results from `make eval`, and what breaks when a layer is removed<br>![Benchmark page](docs/media/benchmark.png) |
+| **Audit log**: hash chain check and tamper demo<br>![Audit log](docs/media/audit-log.png) | **Home**: totals and where alerts went<br>![Home page](docs/media/home.png) |
 
 ## Use a real LLM (optional)
 Edit `.env`:
