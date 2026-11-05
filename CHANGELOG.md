@@ -1,5 +1,9 @@
 # Changelog
 
+## Real model run
+- Ran llama3.2 on Ollama end to end. Added `scripts/real_model_proof.py`, the prompt trace and the server log.
+- Added Excalidraw architecture diagrams.
+
 ## 1.0.0
 - Phase 0: scaffolding, config, schemas, LLM provider layer, Makefile, Docker, CI.
 - Phase 1: synthetic generator, adapters, redaction, sanitiser, dual-LLM, scorer, ATT&CK mapping, explainer, verifier, playbook, triage, API, Analyze page.
