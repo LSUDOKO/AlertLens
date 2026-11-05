@@ -14,7 +14,7 @@ Draft answers. Check each against the code, and say them in your own words. Numb
 
 **6. How does correlation decide alerts are related? Failure cases?** Union-find over shared users, IPs, hosts, hashes and domains within 30 minutes. Low-level alerts don't link, and a host used by two different accounts doesn't link. Precision is our weakest number: attackers reusing an address get merged, and slow attacks beyond the window split.
 
-**7. What about languages or encodings you didn't anticipate?** The detector will often miss them: recall on held-out paraphrases is far below recall on our templates, as the report shows. That's why detection isn't the main defence. A missed payload still never reaches the explainer or changes the score.
+**7. What about languages or encodings you didn't anticipate?** The detector will often miss them. Rules alone caught 34.8% of held-out paraphrases; rules plus the classifier catch 56.5%, far below recall on our templates. That's why detection isn't the main defence. A missed payload still never reaches the explainer or changes the score.
 
 **8. Why a fixed playbook?** A model can't recommend what isn't there, so "disable the firewall" is impossible by construction. The cost is flexibility: new responses need a person to add them. Model suggestions can only reorder valid actions.
 
@@ -31,3 +31,8 @@ Draft answers. Check each against the code, and say them in your own words. Numb
 **14. What if the LLM is down?** Each call retries once, then falls back to a code template with a visible badge. Severity and actions don't depend on the LLM. A test covers this with a provider that raises connection errors.
 
 **15. Why tamper-evident and not tamper-proof?** Each record hashes the previous one, so editing or removing a middle record breaks the chain at that point. Someone with write access can still rewrite the whole chain or cut records off the end, and a test documents that. Fixing it needs an external anchor, such as publishing the head hash.
+
+**Why not make the classifier catch more?** Our first version caught 95.7% of held-out paraphrases, but it also flagged 11 of 24 ordinary log lines. It had learned that a sentence in a log is an attack. We added clean log text to training and kept the lower score. A false alarm raises severity and blocks auto-close, so it has a real cost.
+
+**How do you know the real model's output is safe to show?** The Analyze page and the Red-Team Lab both have a "What the model tried" panel with the raw replies and what code changed. On llama3.2 the verifier removed claims that copied numbers from elsewhere or guessed at attack stages.
+

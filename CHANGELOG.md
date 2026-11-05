@@ -3,6 +3,8 @@
 ## Real model run
 - Ran llama3.2 on Ollama end to end. Added `scripts/real_model_proof.py`, the prompt trace and the server log.
 - Added Excalidraw architecture diagrams.
+- Added a classifier for reworded attacks, typed attacks in the Red-Team Lab, a "What the model tried" panel, a public demo Space and locked demo settings.
+- Rewrote the explainer prompt and tightened the verifier after testing on llama3.2.
 
 ## 1.0.0
 - Phase 0: scaffolding, config, schemas, LLM provider layer, Makefile, Docker, CI.

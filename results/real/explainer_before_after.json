@@ -1,0 +1,384 @@
+{
+ "model": "ollama:llama3.2",
+ "note": "Same 5 alerts, forced onto the LLM path. Small sample.",
+ "before_explainer_v1": {
+  "summary": {
+   "mean_grounding": 0.267,
+   "alerts_with_invented_action_ids": 5,
+   "alerts_with_template_text": 0,
+   "summaries_stating_severity": 0,
+   "alerts": 5
+  },
+  "rows": [
+   {
+    "id": "ALR-42-000001",
+    "label": "critical",
+    "grounding": 0.0,
+    "fallback": [],
+    "summary": "Login success after repeated failures",
+    "kept": [
+     [
+      "partially_verified",
+      "The login was successful after repeated failures."
+     ],
+     [
+      "partially_verified",
+      "The user had repeated failures before the login success."
+     ],
+     [
+      "partially_verified",
+      "The login was performed by emp265.test."
+     ],
+     [
+      "partially_verified",
+      "The login occurred on WS-033."
+     ],
+     [
+      "partially_verified",
+      "The login was performed from 203.0.113.45."
+     ]
+    ],
+    "removed": [],
+    "blocked": [
+     [
+      "AL-1002"
+     ]
+    ],
+    "actions": [
+     "disable_user_session",
+     "reset_user_password",
+     "force_mfa_reenrol",
+     "block_ip_at_firewall",
+     "notify_user"
+    ]
+   },
+   {
+    "id": "ALR-42-000004",
+    "label": "critical",
+    "grounding": 0.3333,
+    "fallback": [],
+    "summary": "Login success after repeated failures",
+    "kept": [
+     [
+      "partially_verified",
+      "The login success event occurred during off-hours."
+     ],
+     [
+      "verified",
+      "The login success event was performed by an admin user."
+     ],
+     [
+      "partially_verified",
+      "The login success event occurred after repeated failures."
+     ]
+    ],
+    "removed": [],
+    "blocked": [
+     [
+      "AL-1002"
+     ]
+    ],
+    "actions": [
+     "disable_user_session",
+     "reset_user_password",
+     "force_mfa_reenrol",
+     "block_ip_at_firewall",
+     "notify_user"
+    ]
+   },
+   {
+    "id": "ALR-42-000005",
+    "label": "critical",
+    "grounding": 0.0,
+    "fallback": [],
+    "summary": "Security Alert",
+    "kept": [
+     [
+      "partially_verified",
+      "A new local administrator was created on FIN-DB-01."
+     ],
+     [
+      "partially_verified",
+      "User root.ops.test has admin privileges."
+     ],
+     [
+      "partially_verified",
+      "The action occurred during off-hours."
+     ]
+    ],
+    "removed": [],
+    "blocked": [
+     [
+      "A-1234",
+      "A-5678",
+      "A-9012"
+     ]
+    ],
+    "actions": [
+     "disable_user_session",
+     "disable_user",
+     "isolate_host",
+     "collect_forensics",
+     "escalate_to_tier2"
+    ]
+   },
+   {
+    "id": "ALR-42-000000",
+    "label": "high",
+    "grounding": 0.0,
+    "fallback": [],
+    "summary": "Multiple failed logins detected",
+    "kept": [
+     [
+      "partially_verified",
+      "Failed logins occurred"
+     ],
+     [
+      "partially_verified",
+      "Logins occurred during off-hours"
+     ],
+     [
+      "partially_verified",
+      "Multiple failed logins"
+     ]
+    ],
+    "removed": [],
+    "blocked": [
+     [
+      "AL-1001"
+     ]
+    ],
+    "actions": [
+     "disable_user_session",
+     "reset_user_password",
+     "force_mfa_reenrol",
+     "block_ip_at_firewall",
+     "notify_user"
+    ]
+   },
+   {
+    "id": "ALR-42-000002",
+    "label": "low",
+    "grounding": 1.0,
+    "fallback": [],
+    "summary": "Multiple failed logins detected",
+    "kept": [
+     [
+      "verified",
+      "The alert rule is set to trigger for multiple failed logins."
+     ],
+     [
+      "verified",
+      "The system has detected four failed logins from emp260.test to ws-371 from 10.7.193.22."
+     ],
+     [
+      "verified",
+      "The alert category is set to authentication."
+     ]
+    ],
+    "removed": [],
+    "blocked": [
+     [
+      "AL-1001"
+     ]
+    ],
+    "actions": [
+     "notify_user",
+     "close_as_benign"
+    ]
+   }
+  ]
+ },
+ "after_explainer_v2": {
+  "summary": {
+   "mean_grounding": 0.64,
+   "alerts_with_invented_action_ids": 0,
+   "alerts_with_template_text": 1,
+   "summaries_stating_severity": 5,
+   "alerts": 5
+  },
+  "rows": [
+   {
+    "id": "ALR-42-000001",
+    "label": "critical",
+    "grounding": 0.2,
+    "fallback": [],
+    "summary": "critical severity: a login success after repeated failures on WS-033.",
+    "kept": [
+     [
+      "partially_verified",
+      "emp265.test logged in to WS-033 successfully."
+     ],
+     [
+      "partially_verified",
+      "WS-033 is a host with low asset criticality."
+     ],
+     [
+      "verified",
+      "203.0.113.45 is the source IP of the login event."
+     ],
+     [
+      "partially_verified",
+      "WS-033 is an off-hours host."
+     ],
+     [
+      "partially_verified",
+      "emp265.test is not an admin user."
+     ]
+    ],
+    "removed": [],
+    "blocked": [],
+    "actions": [
+     "disable_user_session",
+     "reset_user_password",
+     "force_mfa_reenrol",
+     "block_ip_at_firewall",
+     "notify_user"
+    ]
+   },
+   {
+    "id": "ALR-42-000004",
+    "label": "critical",
+    "grounding": 0.25,
+    "fallback": [],
+    "summary": "critical severity: a login success after repeated failures on vpn-gw-01.",
+    "kept": [
+     [
+      "partially_verified",
+      "root.ops.test logged in to vpn-gw-01 successfully."
+     ],
+     [
+      "partially_verified",
+      "vpn-gw-01 is a high-criticality asset."
+     ],
+     [
+      "verified",
+      "198.51.100.77 is the source IP address of the login event."
+     ],
+     [
+      "partially_verified",
+      "root.ops.test has admin privileges."
+     ]
+    ],
+    "removed": [],
+    "blocked": [],
+    "actions": [
+     "disable_user_session",
+     "reset_user_password",
+     "force_mfa_reenrol",
+     "block_ip_at_firewall",
+     "notify_user"
+    ]
+   },
+   {
+    "id": "ALR-42-000005",
+    "label": "critical",
+    "grounding": 1.0,
+    "fallback": [
+     "why_it_matters: guess with no evidence: breach"
+    ],
+    "summary": "critical severity: a new local administrator on FIN-DB-01.",
+    "kept": [
+     [
+      "verified",
+      "The alert user is root.ops.test."
+     ],
+     [
+      "verified",
+      "The alert host is FIN-DB-01."
+     ],
+     [
+      "verified",
+      "The alert privilege is admin."
+     ],
+     [
+      "verified",
+      "The alert event count is 1."
+     ],
+     [
+      "verified",
+      "The alert asset criticality is crown_jewel."
+     ]
+    ],
+    "removed": [],
+    "blocked": [],
+    "actions": [
+     "disable_user_session",
+     "disable_user",
+     "isolate_host",
+     "collect_forensics",
+     "escalate_to_tier2"
+    ]
+   },
+   {
+    "id": "ALR-42-000000",
+    "label": "high",
+    "grounding": 1.0,
+    "fallback": [],
+    "summary": "high severity: multiple failed logins on WS-033.",
+    "kept": [
+     [
+      "verified",
+      "The alert user is emp265.test."
+     ],
+     [
+      "verified",
+      "The alert host is WS-033."
+     ],
+     [
+      "verified",
+      "The alert src IP is 203.0.113.45."
+     ],
+     [
+      "verified",
+      "The alert event count is 15."
+     ],
+     [
+      "verified",
+      "The alert privilege is standard."
+     ]
+    ],
+    "removed": [],
+    "blocked": [],
+    "actions": [
+     "disable_user_session",
+     "reset_user_password",
+     "force_mfa_reenrol",
+     "block_ip_at_firewall",
+     "notify_user"
+    ]
+   },
+   {
+    "id": "ALR-42-000002",
+    "label": "low",
+    "grounding": 0.75,
+    "fallback": [],
+    "summary": "low severity: multiple failed logins on ws-371.",
+    "kept": [
+     [
+      "partially_verified",
+      "emp260.test failed to log in to ws-371 from 10.7.193.22 four times."
+     ],
+     [
+      "verified",
+      "ws-371 is a low-criticality asset."
+     ],
+     [
+      "verified",
+      "10.7.193.22 is the source IP address of the failed login attempts."
+     ],
+     [
+      "verified",
+      "The login failed due to a failure outcome."
+     ]
+    ],
+    "removed": [],
+    "blocked": [],
+    "actions": [
+     "notify_user",
+     "close_as_benign"
+    ]
+   }
+  ]
+ }
+}
