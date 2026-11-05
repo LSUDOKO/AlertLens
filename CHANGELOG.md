@@ -6,6 +6,7 @@
 - Added a classifier for reworded attacks, typed attacks in the Red-Team Lab, a "What the model tried" panel, a public demo Space and locked demo settings.
 - Rewrote the explainer prompt and tightened the verifier after testing on llama3.2.
 - Added a live demo, a published Docker image, and security and contribution guides.
+- Added the 100-alert benchmark on llama3.2.
 
 ## 1.0.0
 - Phase 0: scaffolding, config, schemas, LLM provider layer, Makefile, Docker, CI.

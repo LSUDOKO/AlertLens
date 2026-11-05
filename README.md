@@ -107,6 +107,20 @@ Testing on this model changed the explainer. On the same 5 alerts, forced onto t
 
 The first prompt rewrite made things worse in a useful way: the model copied our example values, and then listed every field until it ran out of tokens. So the prompt now gives patterns instead of values, the JSON schema caps claims at 6, and the verifier rejects a number that does not match its cited field.
 
+**100-alert benchmark on the same model** ([report](results/real/benchmark_100/benchmark_report.md)). It has only 12 injected malicious alerts, so treat these as a small sample:
+
+| | Naive prompt | AlertLens |
+|---|---|---|
+| Attack success, injected malicious alerts | 66.7% (8 of 12) | 0.0% (0 of 12) |
+| Misses caused by the injection itself | 33.3% (4 of 12) | 0.0% |
+| Non-playbook or harmful actions | 1.0% | 0.0% |
+
+- **What did the work:** turning off the detector, dual-LLM isolation, the verifier or the output guards left attack success at 0%. Letting the model decide severity raised it to 66.7%. On this model and sample, code-decided severity is the layer that stopped these attacks.
+- **Where it fell short:** the detector missed both held-out paraphrases in this sample (0 of 2), and mean grounding on the LLM path was 0.5731. An LLM-path alert took about 115 seconds on CPU.
+- **Fast and deep paths disagreed:** on all 5 alerts re-run on the LLM path, the label or triage differed from the fast path. We only re-ran 5, so this needs more study.
+- **Not a fair verdict score:** the naive prompt scored F1 0 because llama3.2 never answered "malicious" there, so don't read that as its overall detection skill.
+- **Run details:** the report names commit `89a39e1`, its checkout when the run ended. The run started on `0e94f7a`. Only the version string changed in `alertlens/`, `eval/` and `data/` between them.
+
 This model is still weak. It gets `action_type` wrong, and code overrules it. Two of the 5 alerts scored only 0.2 and 0.25. Many kept claims are only partly verified, and the UI marks them as such. This is a small sample, not a measurement of real models in general. The headline results below use the simulated model unless they say otherwise.
 
 ## Architecture
