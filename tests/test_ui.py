@@ -81,3 +81,17 @@ def test_escape_helper():
     from ui.common import esc
 
     assert esc('<img src=x onerror="a">') == "&lt;img src=x onerror=&quot;a&quot;&gt;"
+
+
+def test_public_demo_locks_settings(monkeypatch):
+    monkeypatch.setenv("PUBLIC_DEMO", "true")
+    from alertlens.config import load_settings, update_settings
+
+    update_settings(public_demo=load_settings().public_demo)
+    try:
+        at = AppTest.from_file(str(ROOT) + "/ui/pages/8_Settings.py", default_timeout=30).run()
+        assert not at.exception
+        assert not at.text_input
+        assert any("locked" in i.value for i in at.info)
+    finally:
+        update_settings(public_demo=False)

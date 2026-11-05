@@ -7,6 +7,10 @@ from ui.common import setup
 setup("Settings")
 st.title("Settings")
 s = get_settings()
+if s.public_demo:
+    # A visitor must not repoint a shared server at another URL or change settings for everyone.
+    st.info("Settings are locked on this public demo. It uses simulated models. Run AlertLens locally to use a real model.")
+    st.stop()
 kinds = ["mock", "ollama", "openai_compat", "gemini", "anthropic"]
 with st.form("settings"):
     provider = st.selectbox("LLM provider", kinds, index=kinds.index(s.llm_provider))
