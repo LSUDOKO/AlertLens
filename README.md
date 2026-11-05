@@ -66,6 +66,13 @@ Benchmark it with `make eval EVAL_ARGS="--provider ollama --model <name> --limit
 
 The HTTP providers are tested against a local stub server only. They have not been run against a real model yet.
 
+## Architecture
+![How one alert is analysed](docs/media/architecture-pipeline.png)
+
+![System overview](docs/media/architecture-system.png)
+
+Editable sources: open [`pipeline.excalidraw`](docs/architecture/pipeline.excalidraw) or [`system.excalidraw`](docs/architecture/system.excalidraw) at excalidraw.com.
+
 ## How the AI works
 ```
 Alert → Parse → Sanitise → Score (rules + ML, no LLM) → Map to ATT&CK → Correlate
