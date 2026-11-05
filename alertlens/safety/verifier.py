@@ -23,6 +23,30 @@ POLARITY = {
 }
 
 
+# Attack stages and conclusions a model likes to guess. Each needs support somewhere in the evidence.
+SPECULATION = {
+    "lateral movement": ("lateral movement",), "privilege escalation": ("privilege escalation",),
+    "exfiltration": ("exfiltration", "data_transfer"), "data theft": ("exfiltration", "data_transfer"),
+    "persistence": ("persistence",), "ransomware": ("ransomware", "impact"), "malware": ("malware", "mimikatz", "execution"),
+    "insider threat": ("insider",), "credential theft": ("credential access", "mimikatz"),
+    "command and control": ("command and control",), "compromised": ("compromis",), "breach": ("breach",),
+}
+_ADMIN_WORD = re.compile(r"\b(admin|administrator|administrative|root)\b", re.IGNORECASE)
+_NOT_ADMIN = re.compile(r"\b(not|non|no|without)\b[\s-]+(?:\w+\s+){0,2}(admin|administrator|administrative|root)\b", re.IGNORECASE)
+
+
+def unsupported_concept(text: str, evidence: dict[str, object]) -> str | None:
+    """Name a guessed conclusion that nothing in the evidence backs up."""
+    lowered = text.lower()
+    known = " ".join(str(v).lower() for v in evidence.values())
+    for phrase, support in SPECULATION.items():
+        if phrase in lowered and not any(s in known for s in support):
+            return phrase
+    if _ADMIN_WORD.search(_NOT_ADMIN.sub(" ", text)) and evidence.get("facts.is_admin_action") is not True and evidence.get("alert.privilege") != "admin":
+        return "an admin action"
+    return None
+
+
 def checkable_values(text: str) -> list[str]:
     """Pull out everything a claim states as a concrete fact."""
     values: list[str] = []
@@ -47,6 +71,12 @@ def _contradiction(draft: ClaimDraft, evidence: dict[str, object]) -> str | None
     for path, (pattern, asserted) in POLARITY.items():
         if path in draft.evidence and path in evidence and bool(pattern.search(draft.text)) != (evidence[path] == asserted):
             return f"disagrees with {path}"
+    # A number stated while citing a numeric field must be that field's value, not one found elsewhere.
+    numeric = [float(evidence[p]) for p in draft.evidence
+               if p in evidence and isinstance(evidence[p], int | float) and not isinstance(evidence[p], bool)]
+    stated = [float(n) for n in _NUMBER.findall(_TECHNIQUE.sub(" ", _PLACEHOLDER.sub(" ", draft.text)))]
+    if numeric and stated and not set(numeric) & set(stated):
+        return "disagrees with the cited number"
     if "severity.label" in draft.evidence and "severity.label" in evidence:
         words = {w.lower() for w in _SEVERITY_WORD.findall(draft.text)}
         if words != {str(evidence["severity.label"])}:
@@ -66,6 +96,8 @@ def verify_claim(draft: ClaimDraft, evidence: dict[str, object], label: str) -> 
         return result("unsupported", f"contradicts the code-decided outcome: {phrase!r}")
     if why := _contradiction(draft, evidence):
         return result("unsupported", why)
+    if concept := unsupported_concept(draft.text, evidence):
+        return result("unsupported", f"guess with no evidence: {concept}")
     cited_raw = [evidence[p] for p in draft.evidence if p in evidence]
     cited = [str(v) for v in cited_raw]
     everything = [str(v) for v in evidence.values()]
@@ -92,10 +124,17 @@ def verify_claims(drafts: list[ClaimDraft], evidence: dict[str, object], label: 
     return kept, removed, round(verified / len(checked), 4) if checked else 0.0
 
 
+def vague_summary(summary: str, label: str) -> bool:
+    """A summary must at least say how severe the alert is."""
+    return label.lower() not in summary.lower()
+
+
 def verify_prose(text: str, evidence: dict[str, object], label: str) -> str | None:
     """Return why free prose is unsafe to show, or None. Prose has no citations, so it gets the whole payload."""
     if phrase := tamper_attempt(text, label):
         return f"steering language: {phrase!r}"
+    if concept := unsupported_concept(text, evidence):
+        return f"guess with no evidence: {concept}"
     everything = [str(v) for v in evidence.values()]
     for value in checkable_values(text):
         if not _in_values(value, everything):

@@ -72,3 +72,55 @@ def test_prose_check():
 def test_checkable_values():
     assert set(checkable_values("<IP_1> T1110.004 bob.test FIN-DB-01 a@example.com 42.")) == \
         {"<IP_1>", "T1110.004", "bob.test", "FIN-DB-01", "a@example.com", "42"}
+
+
+def test_guessed_attack_stage_is_removed_unless_evidence_backs_it():
+    from alertlens.safety.verifier import unsupported_concept, verify_claim
+    from alertlens.schemas import ClaimDraft
+
+    plain = {"alert.user": "<USER_1>", "mitre.0.tactic": "Command and Control"}
+    guess = ClaimDraft(text="<USER_1> shows potential lateral movement.", evidence=["alert.user"])
+    assert verify_claim(guess, plain, "high").status == "unsupported"
+    backed = {**plain, "mitre.1.tactic": "Lateral Movement"}
+    assert verify_claim(guess, backed, "high").status != "unsupported"
+    assert unsupported_concept("This fits the Command and Control stage.", plain) is None
+
+
+def test_admin_claim_needs_admin_evidence():
+    from alertlens.safety.verifier import unsupported_concept
+
+    assert unsupported_concept("It was performed by an admin user.", {"facts.is_admin_action": False}) == "an admin action"
+    assert unsupported_concept("It was performed by an admin user.", {"facts.is_admin_action": True}) is None
+    assert unsupported_concept("It was performed by an admin user.", {"alert.privilege": "admin"}) is None
+
+
+def test_vague_summary_is_caught():
+    from alertlens.safety.verifier import vague_summary
+
+    assert vague_summary("Security Alert", "high")
+    assert not vague_summary("High severity: a login", "high")
+
+
+def test_number_copied_from_elsewhere_is_removed():
+    from alertlens.safety.verifier import verify_claim
+    from alertlens.schemas import ClaimDraft
+
+    evidence = {"alert.rule_level": 8, "severity.score": 92.3}
+    wrong = ClaimDraft(text="The rule fired at level 9.", evidence=["alert.rule_level"])
+    right = ClaimDraft(text="The rule fired at level 8.", evidence=["alert.rule_level"])
+    assert verify_claim(wrong, evidence, "high").status == "unsupported"
+    assert verify_claim(right, evidence, "high").status == "verified"
+
+
+def test_denying_admin_is_not_a_guess():
+    from alertlens.safety.verifier import unsupported_concept
+
+    assert unsupported_concept("<USER_1> is not an admin.", {"facts.is_admin_action": False}) is None
+
+
+def test_real_model_schema_caps_claims_but_templates_can_list_more():
+    from alertlens.schemas import ClaimDraft, ExplanationDraft
+
+    assert ExplanationDraft.model_json_schema()["properties"]["claims"]["maxItems"] == 6
+    many = [ClaimDraft(text="x", evidence=["alert.user"]) for _ in range(9)]
+    assert len(ExplanationDraft(summary="s", what_happened="w", why_it_matters="y", claims=many).claims) == 9

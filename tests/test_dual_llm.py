@@ -77,3 +77,29 @@ def test_vulnerable_model_only_reads_masked_data():
     out = extract_facts(alert, scan_alert(alert), Vault(), VulnerableMockLLM())
     assert not out.call.fallback
     assert "[QUARANTINED" in json.dumps(out.call.raw_text) or out.facts.action_type == "login"
+
+
+def test_explainer_is_offered_only_playbook_ids_and_vague_summary_is_replaced():
+    from alertlens.llm.mock import MockLLM
+    from alertlens.llm.provider import LLMResponse, RecordingProvider
+    from alertlens.pipeline.orchestrator import Options, analyze
+    from alertlens.pipeline.service import hero_alerts
+    from alertlens.remediation.recommender import playbook
+
+    class Vague(MockLLM):
+        def complete(self, system, user, *, schema=None, temperature=0.0, max_tokens=800):
+            resp = super().complete(system, user, schema=schema, temperature=temperature, max_tokens=max_tokens)
+            if schema and schema.__name__ == "ExplanationDraft":
+                draft = json.loads(resp.text)
+                draft["summary"] = "Security Alert"
+                return LLMResponse(json.dumps(draft), resp.provider, resp.model, tokens=0)
+            return resp
+
+    rec = RecordingProvider(Vague())
+    r = analyze(hero_alerts()[0], Options(persist=False, deep=True, provider=rec, extractor=rec))
+    prompt = next(p["user"] for p in rec.prompt_log if p["schema"] == "ExplanationDraft")
+    ids = json.loads(prompt.split("<<FACTS>>")[1].split("<<END-FACTS>>")[0])["allowed_action_ids"]
+    assert ids and set(ids) <= set(playbook())
+    assert r.explanation.summary != "Security Alert"
+    assert any("summary" in reason for reason in r.explanation.fallback_reasons)
+    assert r.explanation.what_happened  # the other fields keep working

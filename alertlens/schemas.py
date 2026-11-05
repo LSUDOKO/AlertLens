@@ -115,7 +115,8 @@ class ExplanationDraft(BaseModel):
     summary: str = Field(max_length=600)
     what_happened: str = Field(max_length=800)
     why_it_matters: str = Field(max_length=800)
-    claims: list[ClaimDraft]
+    # Limits what a real model generates, through its JSON schema. Code-written templates may list more.
+    claims: list[ClaimDraft] = Field(json_schema_extra={"maxItems": 6})
     suggested_action_ids: list[str] = []
 
 

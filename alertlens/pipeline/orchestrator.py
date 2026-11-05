@@ -29,7 +29,7 @@ from alertlens.safety.canary import leaked
 from alertlens.safety.injection import scan_alert
 from alertlens.safety.pii import Vault
 from alertlens.safety.state_lock import lock, state_intact, tamper_attempt
-from alertlens.safety.verifier import verify_claims, verify_prose
+from alertlens.safety.verifier import vague_summary, verify_claims, verify_prose
 from alertlens.schemas import Alert, AnalysisResult, Claim, Explanation, SanitiseReport, SeverityResult
 from alertlens.scoring.scorer import label_of, score_alert, triage_of
 
@@ -118,6 +118,8 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
     payload = build_facts_payload(alert, facts, severity, mitre, sanitise, vault, similar, o.context)
     evidence = evidence_map(payload)
     state, digest = lock(alert.alert_id, severity, payload["severity"])
+    if route == "llm":
+        payload["allowed_action_ids"] = [a.action_id for a in recommend(alert, severity, sanitise, mitre)]
 
     agent_transcript: list[dict] = []
     if route == "llm" and get_settings().feature_multi_agent:
@@ -167,13 +169,16 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
         kept, removed, grounding = verify_claims(draft.claims, evidence, severity.label)
         if removed:
             event("unsupported_claims", count=len(removed), reasons=[c.reason for c in removed][:3])
-        reasons = [r for r in (verify_prose(t, evidence, severity.label)
-                               for t in (draft.summary, draft.what_happened, draft.why_it_matters)) if r]
-        if reasons:
-            fallback_reasons += reasons
-            prose_src = template
-        else:
-            prose_src = draft
+        # Replace only the field that failed, so one bad sentence does not discard the rest.
+        prose = {}
+        for name in ("summary", "what_happened", "why_it_matters"):
+            reason = verify_prose(getattr(draft, name), evidence, severity.label)
+            if name == "summary" and not reason and vague_summary(draft.summary, severity.label):
+                reason = "summary does not state the severity"
+            prose[name] = getattr(template if reason else draft, name)
+            if reason:
+                fallback_reasons.append(f"{name}: {reason}")
+        prose_src = draft.model_copy(update=prose)
         if not kept:
             kept, _, grounding = verify_claims(template.claims, evidence, severity.label)
             fallback_reasons.append("no claim survived verification")
