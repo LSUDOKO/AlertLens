@@ -9,7 +9,7 @@ import json
 
 import streamlit as st
 
-from alertlens.config import ROOT
+from alertlens.config import ROOT, get_settings
 from eval.run_benchmark import run
 from ui.common import setup
 
@@ -17,7 +17,9 @@ setup("Benchmark")
 st.title("Benchmark")
 out = ROOT / "results"
 path = out / "metrics.json"
-if st.button("Run a quick benchmark, about 100 alerts"):
+if get_settings().public_demo:
+    st.caption("Running a new benchmark is turned off on this public demo. These are the committed results.")
+elif st.button("Run a quick benchmark, about 100 alerts"):
     with st.spinner("Running the real pipeline on 100 alerts"):
         run(100, None, "", out / "quick")
     st.session_state["quick"] = True

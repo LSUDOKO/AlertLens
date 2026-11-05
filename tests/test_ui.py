@@ -93,5 +93,9 @@ def test_public_demo_locks_settings(monkeypatch):
         assert not at.exception
         assert not at.text_input
         assert any("locked" in i.value for i in at.info)
+        feedback = AppTest.from_file(str(ROOT) + "/ui/pages/6_Feedback.py", default_timeout=30).run()
+        assert not feedback.exception and not [b for b in feedback.button if b.label == "Retrain"]
+        bench = AppTest.from_file(str(ROOT) + "/ui/pages/5_Benchmark.py", default_timeout=30).run()
+        assert not bench.exception and not [b for b in bench.button if "quick" in b.label]
     finally:
         update_settings(public_demo=False)

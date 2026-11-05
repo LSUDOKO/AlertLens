@@ -53,7 +53,9 @@ Captured from the running app with the default offline provider. All data is syn
 | **Audit log**: hash chain check and tamper demo<br>![Audit log](docs/media/audit-log.png) | **Home**: totals and where alerts went<br>![Home page](docs/media/home.png) |
 
 ## Public demo
-`scripts/deploy_space.sh <username>/alertlens` publishes a Hugging Face Space using simulated models. Visitors cannot change its settings.
+The free option is [Streamlit Community Cloud](https://share.streamlit.io): choose this repo, set the main file to `ui/Home.py` and Python to 3.12, and add the secret `PUBLIC_DEMO = "true"`. It uses simulated models. Visitors cannot change settings, retrain the model or run the benchmark.
+
+`scripts/deploy_space.sh <username>/alertlens` publishes the same demo as a Hugging Face Docker Space, which needs a paid PRO account.
 
 ## Use a real LLM (optional)
 Edit `.env`:

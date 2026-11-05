@@ -9,9 +9,11 @@ import html
 import plotly.graph_objects as go
 import streamlit as st
 
+from alertlens.config import ROOT, get_settings
 from alertlens.memory import store as db
 from alertlens.pipeline import service
 from alertlens.remediation.guardrails import GuardrailError
+from data.generator.generate import write_benchmark
 from scripts.seed_db import ensure_seeded
 
 SEVERITY = {"low": "#9AA0B5", "medium": "#E8B23A", "high": "#F0883E", "critical": "#F2545B"}
@@ -41,6 +43,8 @@ def setup(title: str) -> None:
     st.markdown(CSS, unsafe_allow_html=True)
     if "seeded" not in st.session_state:
         ensure_seeded()
+        if not (ROOT / "data" / "benchmark" / "alerts.jsonl").exists():  # a fresh clone on a hosted demo
+            write_benchmark(get_settings().seed, 2000, ROOT / "data" / "benchmark")
         st.session_state["seeded"] = True
 
 

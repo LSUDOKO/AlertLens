@@ -21,9 +21,6 @@ from ui.common import SEVERITY, setup, show_kpis
 setup("Live feed")
 st.title("Live feed")
 source = ROOT / "data" / "benchmark" / "alerts.jsonl"
-if not source.exists():
-    st.error("No stream to replay. Run `make data` first.")
-    st.stop()
 st.session_state.setdefault("feed_on", False)
 st.session_state.setdefault("feed_pos", 200)
 a, b = st.columns([1, 5])

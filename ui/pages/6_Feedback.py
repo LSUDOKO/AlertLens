@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import plotly.graph_objects as go
 import streamlit as st
 
+from alertlens.config import get_settings
 from alertlens.feedback.loop import record_feedback, retrain
 from alertlens.memory import store as db
 from alertlens.pipeline.orchestrator import Options, analyze
@@ -17,6 +18,10 @@ from ui.common import setup
 setup("Feedback")
 st.title("Feedback")
 st.write("Correct a verdict, then retrain. The planted example: training data labels misused service tokens as benign.")
+if get_settings().public_demo:
+    # Visitors share one model, so one person must not be able to retrain it for everyone.
+    st.info("Feedback and retraining are turned off on this public demo. Run AlertLens locally to try them.")
+    st.stop()
 with db.db() as conn:
     rows = db.list_analyses(conn, 200)
     used = conn.execute("SELECT COUNT(*) FROM feedback").fetchone()[0]
