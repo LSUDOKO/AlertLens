@@ -186,6 +186,7 @@ class AnalysisResult(BaseModel):
     timings_ms: dict[str, float]
     audit_seq: int
     security_events: list[dict] = []
+    model_trace: list[dict] = []
 
 
 class NaiveVerdict(BaseModel):

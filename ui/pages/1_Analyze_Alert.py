@@ -7,7 +7,7 @@ from alertlens.ingest.adapters import UnknownFormatError
 from alertlens.ingest.normalise import AlertValidationError
 from alertlens.pipeline.orchestrator import Options, analyze
 from alertlens.pipeline.service import load_samples
-from ui.common import actions_block, debate_block, esc, explanation_block, injection_banner, setup, severity_card
+from ui.common import actions_block, debate_block, esc, explanation_block, injection_banner, model_trace_block, setup, severity_card
 
 setup("Analyze alert")
 st.title("Analyze an alert")
@@ -61,6 +61,8 @@ with right:
         st.subheader("Similar past incidents")
         st.dataframe([{"Case": c["case_id"], "Similarity": c["similarity"], "Summary": c["summary"], "Resolution": c["resolution"],
                        "Outcome": c["outcome"]} for c in r["similar_cases"]], hide_index=True)
+        with st.expander("What the model tried"):
+            model_trace_block(r)
         with st.expander("Agent debate"):
             debate_block(r["agent_transcript"])
         with st.expander("Pipeline trace"):

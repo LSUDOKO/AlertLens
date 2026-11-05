@@ -15,7 +15,7 @@ from alertlens.config import get_settings
 from alertlens.ingest.adapters import vendor_extra
 from alertlens.ingest.normalise import clean_identifier, normalise
 from alertlens.llm.explainer import build_facts_payload, evidence_map, explain, strip_markup
-from alertlens.llm.provider import LLMProvider, build_provider, main_provider, quarantine_provider
+from alertlens.llm.provider import LLMProvider, TracingProvider, build_provider, main_provider, quarantine_provider
 from alertlens.llm.quarantined import deterministic_facts, extract_facts
 from alertlens.llm.templates import explanation_template
 from alertlens.memory import store as db
@@ -99,9 +99,11 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
     vault = Vault()
     prompt_versions: list[str] = []
     llm_tokens = 0
+    model_trace: list[dict] = []
 
     if route == "llm":
-        outcome = extract_facts(alert, sanitise if o.sanitiser else None, vault, extractor or quarantine_provider())
+        outcome = extract_facts(alert, sanitise if o.sanitiser else None, vault,
+                                TracingProvider(extractor or quarantine_provider(), model_trace, "extractor"))
         facts = outcome.facts
         prompt_versions.append(outcome.prompt_version)
         llm_tokens += outcome.call.tokens or 0
@@ -119,7 +121,7 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
 
     agent_transcript: list[dict] = []
     if route == "llm" and get_settings().feature_multi_agent:
-        debate = investigate(payload, provider)
+        debate = investigate(payload, TracingProvider(provider, model_trace, "agent"))
         agent_transcript = debate.transcript
         if debate.objection:
             # Code applies this. It can only send the alert to a person, never lower the score.
@@ -135,7 +137,7 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
     suggested: list[str] = []
     template = explanation_template(payload)
     if route == "llm":
-        result = explain(payload, provider, raw_alert=alert.raw if not o.dual_llm else None,
+        result = explain(payload, TracingProvider(provider, model_trace, "explainer"), raw_alert=alert.raw if not o.dual_llm else None,
                          check_canary=o.output_guards)
         prompt_versions.append(result.prompt_version)
         llm_tokens += result.call.tokens or 0
@@ -221,7 +223,7 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
         alert=alert, sanitise=sanitise, facts=facts, severity=severity, mitre=mitre, explanation=explanation,
         renderings=renderings, actions=actions, similar_cases=similar, predicted_next=predicted,
         agent_transcript=agent_transcript, route=route, timings_ms=clock.timings, audit_seq=audit_seq,
-        security_events=events,
+        security_events=events, model_trace=model_trace,
     )
     if o.persist:
         _persist(result_obj, o, prompt_versions, EST_TOKENS_LLM_PATH if route == "llm" else 0)

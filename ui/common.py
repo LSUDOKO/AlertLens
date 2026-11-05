@@ -184,6 +184,38 @@ def graph_figure(graph: dict) -> go.Figure:
     return fig
 
 
+def model_trace_block(result: dict) -> None:
+    """Raw model replies beside what code did with them. Everything is plain text: model output is attacker-shaped."""
+    trace = result.get("model_trace") or []
+    if not trace:
+        st.caption("This alert took the fast path, so no model was called.")
+        return
+    changes = []
+    for ev in result["security_events"]:
+        if ev["type"] == "fact_conflict":
+            changes.append(f"Code overruled the model's facts: {', '.join(ev['fields'])}")
+        elif ev["type"] == "unsafe_action_blocked":
+            changes.append(f"Blocked actions outside the playbook: {', '.join(ev['ids'])}")
+        elif ev["type"] == "critic_objection":
+            changes.append(f"The critic objected, so confidence fell to {ev['confidence']} and a person must review")
+        elif ev["type"] == "prompt_leak":
+            changes.append(f"Canary token leaked at {ev['stage']}, so that output was discarded")
+        elif ev["type"] == "state_tamper":
+            changes.append(f"Model text tried to change the outcome: {ev['phrase']}")
+    exp = result["explanation"]
+    changes += [f"Removed claim: {c['text']} ({c['reason']})" for c in exp["removed_claims"]]
+    changes += [f"Template text used: {reason}" for reason in exp["fallback_reasons"]]
+    st.markdown("**What code changed**")
+    st.text("\n".join(changes) or "Nothing. The model's output passed every check.")
+    for n, call in enumerate(trace, 1):
+        st.markdown(f"**Call {n}: {esc(call['stage'])}**")
+        st.caption(f"{call['provider']}, model {call['model'] or 'unnamed'}, {call['latency_ms']} ms, {call['tokens'] or 'unknown'} tokens")
+        if call["error"]:
+            st.text(f"Call failed: {call['error']}")
+        else:
+            st.code(call["reply"], language=None, wrap_lines=True)
+
+
 def debate_block(transcript: list[dict]) -> None:
     if not transcript:
         st.caption("The agents run on the LLM path. This alert took the fast path.")

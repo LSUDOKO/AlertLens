@@ -101,6 +101,9 @@ def _post_json(url: str, body: dict, api_key: str, timeout: float) -> dict:
         return json.loads(resp.read())
 
 
+TRACE_REPLY_LIMIT = 4000
+
+
 @dataclass
 class RecordingProvider:
     """Wraps a provider and keeps the exact prompts it was sent."""
@@ -115,6 +118,31 @@ class RecordingProvider:
     def complete(self, system, user, *, schema=None, temperature=0.0, max_tokens=800) -> LLMResponse:
         self.prompt_log.append({"system": system, "user": user, "schema": schema.__name__ if schema else None})
         return self.inner.complete(system, user, schema=schema, temperature=temperature, max_tokens=max_tokens)
+
+
+@dataclass
+class TracingProvider:
+    """Wraps a provider and keeps what the model replied, for the "what the model tried" panel."""
+
+    inner: LLMProvider
+    trace: list[dict]
+    stage: str
+
+    @property
+    def name(self) -> str:
+        return self.inner.name
+
+    def complete(self, system, user, *, schema=None, temperature=0.0, max_tokens=800) -> LLMResponse:
+        entry = {"stage": self.stage, "provider": self.inner.name, "model": getattr(self.inner, "model", ""), "reply": "",
+                 "latency_ms": 0, "tokens": None, "error": None}
+        self.trace.append(entry)
+        try:
+            resp = self.inner.complete(system, user, schema=schema, temperature=temperature, max_tokens=max_tokens)
+        except Exception as exc:
+            entry["error"] = f"{type(exc).__name__}: {str(exc)[:160]}"
+            raise
+        entry.update(model=resp.model, reply=resp.text[:TRACE_REPLY_LIMIT], latency_ms=round(resp.latency_ms), tokens=resp.tokens)
+        return resp
 
 
 HOSTED_DEFAULTS = {
