@@ -1,5 +1,12 @@
 # AlertLens
 
+[![CI](https://github.com/LSUDOKO/AlertLens/actions/workflows/ci.yml/badge.svg)](https://github.com/LSUDOKO/AlertLens/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/LSUDOKO/AlertLens)](https://github.com/LSUDOKO/AlertLens/releases)
+[![Live demo](https://img.shields.io/badge/demo-live-A9B8FF)](https://alertlens-aegython.streamlit.app/)
+[![Docker image](https://img.shields.io/badge/ghcr.io-lsudoko%2Falertlens-2496ED?logo=docker&logoColor=white)](https://github.com/LSUDOKO/AlertLens/pkgs/container/alertlens)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **Aegython 2026. Team ID: `TODO`. Challenge: Explain My Security Alert.**
 [Live demo](https://alertlens-aegython.streamlit.app/) · [Demo video](TODO) · Review tag: `v1.0-submission` (`TODO commit hash`)
 
@@ -38,6 +45,12 @@ On the Home page, press **Run hero demo**. Then try **Red Team Lab**.
 | `make eval` | Full benchmark, writes `results/` |
 | `make retrain` | Retrain with saved feedback |
 | `make check-secrets` | Scan for key-shaped strings |
+
+### Run the published image
+```bash
+docker run --rm -p 127.0.0.1:8501:8501 -v alertlens-data:/data ghcr.io/lsudoko/alertlens:latest
+```
+Then open http://localhost:8501.
 
 ## Screenshots
 Captured from the running app with the default offline provider. All data is synthetic.
@@ -186,6 +199,9 @@ docs/        specification and Q&A notes
 - Correlation precision is moderate: attackers sharing an address get merged.
 - The next-step predictor is a heuristic. Hindi uses templates, so claims written by a real LLM stay in English.
 - The API has no login, so it binds to localhost. The audit log is tamper-evident, not tamper-proof.
+
+## Contributing and security
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Report bypasses privately.
 
 ## Attribution and licence
 See [ATTRIBUTION.md](ATTRIBUTION.md). MIT licence, see [LICENSE](LICENSE).

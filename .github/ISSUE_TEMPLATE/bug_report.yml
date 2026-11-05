@@ -1,0 +1,22 @@
+name: Bug report
+description: Something does not work as described
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the alert JSON if it matters. Use synthetic data only.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Version, OS and LLM provider
+      placeholder: v1.1.0, Ubuntu 24.04, mock
