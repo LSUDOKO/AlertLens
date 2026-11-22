@@ -19,7 +19,7 @@ With both servers running: `npx playwright install chromium` once, then `npm run
 
 ## Deploy
 ```bash
-NEXT_PUBLIC_API_URL=https://alertlens-api.onrender.com npm run deploy
+NEXT_PUBLIC_API_URL=https://alertlens-api.vercel.app npm run deploy
 ```
 `wrangler.jsonc` serves `out/`; `public/_headers` sets the security headers, including a content security policy that allows calls only to the API. If the API moves, update `connect-src` there and `ALLOWED_ORIGINS` on the API.
 
