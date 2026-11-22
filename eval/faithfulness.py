@@ -86,9 +86,9 @@ def model_mode(n: int, provider: str, model_name: str) -> dict:
             if not values:
                 continue
             gone = ablate(r.facts_payload, list(values))
-            leftover = json.dumps(gone, ensure_ascii=False, default=str)
-            # A value still present elsewhere in the facts is legitimately available, so it does not count.
-            targets = {k: v for k, v in values.items() if v not in leftover}
+            leftover = json.dumps(gone, ensure_ascii=False, default=str).lower()
+            # A value still present elsewhere in the facts, in any case, is legitimately available, so it does not count.
+            targets = {k: v for k, v in values.items() if v.lower() not in leftover}
             if not targets:
                 continue
             again = explain(gone, model).call

@@ -33,3 +33,17 @@ MIT, see `LICENSE`.
 
 ## External dataset
 [deepset/prompt-injections](https://huggingface.co/datasets/deepset/prompt-injections), vendored in `data/external/`. Its card lists Apache-2.0 at the top level and CC-BY-4.0 under `dataset_info`. We removed 36 of 662 rows that matched a word filter for offensive text. No other change.
+
+## Published log-injection payloads (evaluation only)
+Used only by `make external` to attack AlertLens. Never used to train or tune the detector; 3 of the 99 committed payloads share a 40-character window with training text, and the result file reports this.
+
+Committed in `data/external/published_injections.json` (redistribution allowed):
+- *LogJack: Indirect Prompt Injection Through Cloud Logs*, MIT licence (github.com/HarshShah1997/logjack).
+- *Hiding Prompt Injections in Their Own Logs*, CC BY 4.0 (Zenodo record 23808720).
+- *Poisoning the Watchtower: Prompt Injection Attacks*, CC BY 4.0 (arXiv 2605.24421).
+
+Not committed; rebuild locally with `data/external/build_published_injections.py` (see `PUBLISHED_INJECTIONS_SOURCES.md`):
+- *Context Contamination in LLM Analysis of Network Security Logs* (LogInject): artifact templates under RASRL v1.0, paper strings CC BY-NC-ND 4.0.
+- *Just Testing, Move Along: Evasion of LLM-based Systems*: paper strings CC BY-NC-SA 4.0; repository-only strings have no stated licence.
+
+The committed result file keeps only counts for the full set, never the text of these payloads.

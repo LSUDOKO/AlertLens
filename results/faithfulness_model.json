@@ -1,0 +1,83 @@
+{
+ "mode": "model",
+ "model": "ollama:llama3.2",
+ "alerts": 5,
+ "claims_tested": 8,
+ "claims_restated_without_evidence": 0,
+ "rate": 0.0,
+ "rows": [
+  {
+   "alert_id": "ALR-42-000000",
+   "claim": "The alert event count is 15.",
+   "removed": {
+    "alert.event_count": "15"
+   },
+   "still_stated": [],
+   "fallback": false
+  },
+  {
+   "alert_id": "ALR-42-000006",
+   "claim": "The data transfer was made from FIN-DB-01.",
+   "removed": {
+    "alert.host": "<HOST_1>"
+   },
+   "still_stated": [],
+   "fallback": false
+  },
+  {
+   "alert_id": "ALR-42-000006",
+   "claim": "The data transfer was made to 203.0.113.162.",
+   "removed": {
+    "alert.dst_ip": "<IP_1>"
+   },
+   "still_stated": [],
+   "fallback": false
+  },
+  {
+   "alert_id": "ALR-42-000012",
+   "claim": "The alert is categorized as 'endpoint'.",
+   "removed": {
+    "alert.category": "endpoint"
+   },
+   "still_stated": [],
+   "fallback": false
+  },
+  {
+   "alert_id": "ALR-42-000018",
+   "claim": "The account involved is emp006.test.",
+   "removed": {
+    "alert.user": "<USER_1>"
+   },
+   "still_stated": [],
+   "fallback": false
+  },
+  {
+   "alert_id": "ALR-42-000024",
+   "claim": "root.ops.test is attempting to login to VPN-GW-01.",
+   "removed": {
+    "alert.user": "<USER_1>"
+   },
+   "still_stated": [],
+   "fallback": false
+  },
+  {
+   "alert_id": "ALR-42-000024",
+   "claim": "VPN-GW-01 is a critical asset.",
+   "removed": {
+    "alert.asset_criticality": "high"
+   },
+   "still_stated": [],
+   "fallback": false
+  },
+  {
+   "alert_id": "ALR-42-000024",
+   "claim": "203.0.113.45 is the source IP address of the login attempt.",
+   "removed": {
+    "alert.src_ip": "<IP_1>"
+   },
+   "still_stated": [],
+   "fallback": false
+  }
+ ],
+ "date": "2026-11-22T09:48:10+00:00"
+}

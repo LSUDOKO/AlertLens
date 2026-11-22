@@ -3,7 +3,7 @@ BIN := $(VENV)/bin
 PY := $(BIN)/python
 export PYTHONPATH := .
 
-.PHONY: setup data train seed api ui demo test lint eval redteam faithfulness report retrain check-secrets clean
+.PHONY: setup data train seed api ui demo test lint eval redteam faithfulness external report retrain check-secrets clean
 
 $(PY):
 	@if command -v uv >/dev/null 2>&1; then uv venv -q --python 3.12 $(VENV); \
@@ -54,6 +54,9 @@ redteam:
 
 faithfulness:
 	$(PY) -m eval.faithfulness $(FAITH_ARGS)
+
+external:
+	$(PY) -m eval.external $(EXTERNAL_ARGS)
 
 report:
 	$(PY) -m eval.report

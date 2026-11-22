@@ -15,3 +15,6 @@ data/benchmark/
 .DS_Store
 results/quick/
 .playwright-mcp/
+
+# Published payloads whose licences do not allow redistribution here; rebuild with data/external/build_published_injections.py
+data/external/published_injections_full.json
