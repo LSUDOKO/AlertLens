@@ -95,12 +95,36 @@ def reconcile(llm: ExtractedFacts, code: ExtractedFacts) -> tuple[ExtractedFacts
     return ExtractedFacts(**merged), conflicts
 
 
+def fact_sources(llm: ExtractedFacts | None, code: ExtractedFacts, conflicts: list[str]) -> dict[str, str]:
+    """Where each fact came from: code, the quarantined model, or code overruling the model."""
+    unknown = {"action_type": "other", "outcome": "unknown", "suspicious_tool": "none"}
+    out: dict[str, str] = {}
+    for name in ExtractedFacts.model_fields:
+        key = f"facts.{name}"
+        if llm is None:
+            out[key] = "code"
+        elif name in conflicts:
+            out[key] = "code, model overruled"
+        elif name in unknown:
+            out[key] = "model" if getattr(code, name) == unknown[name] and getattr(llm, name) != unknown[name] else "code"
+        elif name == "data_volume_mb":
+            out[key] = "model" if code.data_volume_mb is None and llm.data_volume_mb is not None else "code"
+        elif name == "target_count":
+            out[key] = "model"
+        elif name == "notes_code":
+            out[key] = "code and model" if set(llm.notes_code) - set(code.notes_code) else "code"
+        else:
+            out[key] = "code and model" if getattr(llm, name) and not getattr(code, name) else "code"
+    return out
+
+
 @dataclass
 class ExtractOutcome:
     facts: ExtractedFacts
     call: StructuredResult
     conflicts: list[str]
     prompt_version: str
+    sources: dict[str, str]
 
 
 def extract_facts(alert: Alert, report: SanitiseReport | None, vault: Vault, provider: LLMProvider) -> ExtractOutcome:
@@ -115,4 +139,5 @@ def extract_facts(alert: Alert, report: SanitiseReport | None, vault: Vault, pro
     call = call_structured(provider, system, user, ExtractedFacts, lambda: code,
                            extra_check=lambda text, _: "prompt_leak" if leaked(text, canary) else None, max_tokens=300)
     facts, conflicts = reconcile(call.value, code)
-    return ExtractOutcome(facts, call, conflicts, version)
+    llm = None if call.fallback else call.value
+    return ExtractOutcome(facts, call, conflicts, version, fact_sources(llm, code, conflicts))

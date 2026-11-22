@@ -27,6 +27,7 @@ from alertlens.remediation.recommender import filter_suggestions, recommend
 from alertlens.render.audience import context_from, render_all
 from alertlens.safety.canary import leaked
 from alertlens.safety.injection import scan_alert
+from alertlens.safety.judge import judge_claims
 from alertlens.safety.pii import Vault
 from alertlens.safety.state_lock import lock, state_intact, tamper_attempt
 from alertlens.safety.verifier import vague_summary, verify_claims, verify_prose
@@ -56,6 +57,8 @@ class Options:
     verifier: bool = True
     output_guards: bool = True
     code_severity: bool = True
+    keep_payload: bool = False  # expose the facts payload, for evaluation only
+    judge: LLMProvider | None = None  # cross-model check; defaults to VERIFIER_PROVIDER
 
 
 class Clock:
@@ -111,8 +114,10 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
             event("fact_conflict", fields=outcome.conflicts)
         if outcome.call.error == "prompt_leak":
             event("prompt_leak", stage="extractor")
+        fact_src = outcome.sources
     else:
         facts = deterministic_facts(alert)
+        fact_src = {f"facts.{k}": "code" for k in facts.model_dump()}
     clock.lap("extract")
 
     payload = build_facts_payload(alert, facts, severity, mitre, sanitise, vault, similar, o.context)
@@ -185,6 +190,16 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
     else:
         kept = [Claim(text=c.text, evidence=c.evidence, key=c.key, status="verified") for c in draft.claims]
         removed, grounding, prose_src = [], 1.0, draft
+    judge_report: dict = {}
+    judge = o.judge or (build_provider(get_settings().verifier_provider) if get_settings().verifier_provider != "none" else None)
+    if route == "llm" and judge is not None and o.verifier:
+        kept, judged_out, judge_report = judge_claims(evidence, kept, TracingProvider(judge, model_trace, "judge"))
+        removed = [*removed, *judged_out]
+        if judged_out:
+            event("claims_removed_by_judge", count=len(judged_out))
+        if not kept:
+            kept, _, _ = verify_claims(template.claims, evidence, severity.label)
+            fallback_reasons.append("cross-model check removed every claim")
     clock.lap("verify")
 
     _, rejected = filter_suggestions(suggested)
@@ -204,7 +219,7 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
         summary=final(prose_src.summary), what_happened=final(prose_src.what_happened),
         why_it_matters=final(prose_src.why_it_matters), claims=kept, removed_claims=removed,
         grounding_score=grounding, audience=o.audience, language=o.lang,
-        safe_fallback=bool(fallback_reasons), fallback_reasons=fallback_reasons,
+        safe_fallback=bool(fallback_reasons), fallback_reasons=fallback_reasons, judge=judge_report,
     )
     entry = RULE_CATALOGUE.get(alert.rule_id, {})
     view = {
@@ -228,11 +243,40 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
         alert=alert, sanitise=sanitise, facts=facts, severity=severity, mitre=mitre, explanation=explanation,
         renderings=renderings, actions=actions, similar_cases=similar, predicted_next=predicted,
         agent_transcript=agent_transcript, route=route, timings_ms=clock.timings, audit_seq=audit_seq,
-        security_events=events, model_trace=model_trace,
+        security_events=events, model_trace=model_trace, provenance=provenance_of(evidence, fact_src),
+        facts_payload=payload if o.keep_payload else {},
     )
     if o.persist:
         _persist(result_obj, o, prompt_versions, EST_TOKENS_LLM_PATH if route == "llm" else 0)
     return result_obj
+
+
+# Alert fields the pipeline derives itself rather than reading from the sensor.
+_DERIVED = {"alert.rule_title": "rule catalogue", "alert.off_hours": "code", "alert.geo_usual": "sensor"}
+
+
+def provenance_of(evidence: dict[str, object], fact_src: dict[str, str]) -> dict[str, str]:
+    """Label every citable key with its source, so a reader can see what a claim rests on."""
+    out: dict[str, str] = {}
+    for key in evidence:
+        section = key.split(".", 1)[0]
+        if key in fact_src:
+            out[key] = fact_src[key]
+        elif key in _DERIVED:
+            out[key] = _DERIVED[key]
+        elif section == "alert":
+            out[key] = "sensor"
+        elif section in {"severity", "sanitise"}:
+            out[key] = "code"
+        elif section == "mitre":
+            out[key] = "ATT&CK catalogue"
+        elif section == "similar":
+            out[key] = "case memory"
+        elif section == "context":
+            out[key] = "correlation"
+        else:
+            out[key] = "code"
+    return out
 
 
 def _tactics(mitre: list[dict]) -> list[str]:
@@ -259,6 +303,9 @@ def _persist(result: AnalysisResult, o: Options, prompt_versions: list[str], tok
     with db.db(o.db_path) as conn:
         for ev in result.security_events:
             chain.append(conn, "pipeline", ev["type"], {"alert_id": result.alert.alert_id, **ev})
+        if result.agent_transcript:
+            chain.append(conn, "agents", "agent_ledger", {"alert_id": result.alert.alert_id, "turns": [
+                {k: t.get(k) for k in ("agent", "verdict", "evidence", "objection_counted")} for t in result.agent_transcript]})
         result.audit_seq = chain.append(conn, "pipeline", "analysis", {
             "alert_id": result.alert.alert_id, "label": result.severity.label, "score": result.severity.score,
             "triage": result.severity.triage, "route": result.route, "grounding": result.explanation.grounding_score,

@@ -31,6 +31,8 @@ class Settings:
     llm_base_url: str = "http://localhost:11434"
     llm_api_key: str = field(default="", repr=False)
     quarantine_provider: str = "mock"
+    verifier_provider: str = "none"  # a second model that may only remove claims
+    verifier_model: str = ""
     embeddings: str = "tfidf"
     correlation_window_min: int = 30
     router_llm_threshold: float = 0.35
@@ -56,6 +58,8 @@ def load_settings() -> Settings:
         llm_base_url=_env("LLM_BASE_URL", "http://localhost:11434"),
         llm_api_key=_env("LLM_API_KEY", ""),
         quarantine_provider=_env("QUARANTINE_PROVIDER", "mock"),
+        verifier_provider=_env("VERIFIER_PROVIDER", "none"),
+        verifier_model=_env("VERIFIER_MODEL", ""),
         embeddings=_env("EMBEDDINGS", "tfidf"),
         correlation_window_min=int(_env("CORRELATION_WINDOW_MIN", "30")),
         router_llm_threshold=float(_env("ROUTER_LLM_THRESHOLD", "0.35")),

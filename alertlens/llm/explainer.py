@@ -52,7 +52,9 @@ def build_facts_payload(alert: Alert, facts: ExtractedFacts, severity: SeverityR
         "facts": {f"facts.{k}": v for k, v in facts.model_dump().items() if v is not None},
         "severity": {"severity.label": severity.label, "severity.score": severity.score,
                      "severity.p_malicious": severity.p_malicious, "severity.triage": severity.triage},
-        "mitre": [{"id": t["id"], "name": t["name"], "tactic": t["tactic"]} for t in mitre],
+        # Retrieved from the local ATT&CK catalogue only, never from alert text.
+        "mitre": [{"id": t["id"], "name": t["name"], "tactic": t["tactic"], "description": t.get("short_description", ""),
+                   "detection": t.get("detection_tips", "")} for t in mitre],
         "sanitise": {"sanitise.injection_found": bool(sanitise.quarantined_fields),
                      "sanitise.families": sorted({f.pattern_family for f in sanitise.findings})},
         "similar": [{"case_id": c["case_id"], "outcome": c["outcome"]} for c in (similar or [])
@@ -68,6 +70,14 @@ def evidence_map(payload: dict) -> dict[str, object]:
         out.update(payload.get(section, {}))
     for i, t in enumerate(payload.get("mitre", [])):
         out[f"mitre.{i}.id"], out[f"mitre.{i}.name"], out[f"mitre.{i}.tactic"] = t["id"], t["name"], t["tactic"]
+        for part in ("description", "detection"):
+            if t.get(part):
+                out[f"mitre.{i}.{part}"] = t[part]
+    for i, c in enumerate(payload.get("similar", [])):
+        out[f"similar.{i}.case_id"], out[f"similar.{i}.outcome"] = c["case_id"], c["outcome"]
+    for k, v in (payload.get("context") or {}).items():
+        if isinstance(v, (str, int, float, bool)):
+            out[f"context.{k}"] = v
     return out
 
 

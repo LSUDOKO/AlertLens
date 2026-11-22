@@ -131,6 +131,7 @@ class Explanation(BaseModel):
     language: Language = "en"
     safe_fallback: bool = False
     fallback_reasons: list[str] = []
+    judge: dict = {}  # cross-model check: provider, model, checked, removed
 
 
 class Action(BaseModel):
@@ -155,6 +156,7 @@ class AgentNote(BaseModel):
     verdict: Literal["benign", "suspicious", "malicious"]
     reasons: list[str] = []
     objection_strength: float = Field(default=0.0, ge=0.0, le=1.0)
+    evidence: list[str] = []  # fact keys that back the reasons
 
 
 class Incident(BaseModel):
@@ -188,6 +190,8 @@ class AnalysisResult(BaseModel):
     audit_seq: int
     security_events: list[dict] = []
     model_trace: list[dict] = []
+    provenance: dict[str, str] = {}  # evidence key to where the value came from
+    facts_payload: dict = {}  # only filled when Options.keep_payload is set
 
 
 class NaiveVerdict(BaseModel):

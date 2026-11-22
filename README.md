@@ -179,7 +179,7 @@ Copied from [results/benchmark_report.md](results/benchmark_report.md), which `m
 | False-positive rate on clean alerts | 0.0% |
 | Labels lowered by a payload | 0 |
 | Non-playbook actions | 0.0% |
-| Mean grounding score, LLM path | 0.988 |
+| Mean grounding score, LLM path | 0.9816 |
 | Verdict F1 on synthetic labels | 0.9782 |
 | Calibration error (ECE) | 0.0297 |
 | Correlation pairwise precision | 62.9% |

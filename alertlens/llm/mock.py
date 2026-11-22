@@ -35,6 +35,9 @@ class MockLLM:
         if kind == "AgentNote":
             m = re.search(r"You are the (\w+) agent", system)
             return agent_template(m.group(1) if m else "triage", facts_payload(user)).model_dump_json()
+        if kind == "JudgeVerdict":
+            from alertlens.safety.judge import judge_template
+            return judge_template(user).model_dump_json()
         if kind == "NaiveVerdict":
             return json.dumps(_naive_clean(user))
         return "{}"

@@ -36,21 +36,38 @@ class Debate:
     final_verdict: str
 
 
-def investigate(payload: dict, provider) -> Debate:
-    from alertlens.agents import critic, investigator, triage
+def ledger_entry(agent: str, note: AgentNote, fallback: bool, keys: dict[str, object]) -> dict:
+    """One agent's turn, with each cited key checked against the facts it was given."""
+    valid = [k for k in note.evidence if k in keys]
+    return {"agent": agent, "verdict": note.verdict, "reasons": note.reasons, "evidence": valid,
+            "unknown_evidence": [k for k in note.evidence if k not in keys][:5], "fallback": fallback}
 
+
+def investigate(payload: dict, provider) -> Debate:
+    """Three agents, then a code coordinator. A challenge counts only when it cites facts that exist."""
+    from alertlens.agents import critic, investigator, triage
+    from alertlens.llm.explainer import evidence_map
+
+    keys = evidence_map(payload)
     triage_note, tf = triage.run(payload, provider)
     inv_note, inf = investigator.run(payload, provider)
     critic_note, cf = critic.run(payload, provider)
-    objection = critic_note.objection_strength >= OBJECTION_THRESHOLD
-    factor = round(1 - 0.5 * critic_note.objection_strength, 3)
+    critic_entry = ledger_entry("Critic", critic_note, cf, keys)
+    backed = bool(critic_entry["evidence"])
+    strength = critic_note.objection_strength if backed else 0.0
+    objection = strength >= OBJECTION_THRESHOLD
+    factor = round(1 - 0.5 * strength, 3)
     final = "needs human review" if objection else triage_note.verdict
+    if objection:
+        why = "The critic objected with evidence, so a person should review this."
+    elif critic_note.objection_strength >= OBJECTION_THRESHOLD:
+        why = "The critic objected but cited no facts that exist, so the objection was set aside."
+    else:
+        why = "No strong objection."
     transcript = [
-        {"agent": "Triage", "verdict": triage_note.verdict, "reasons": triage_note.reasons, "fallback": tf},
-        {"agent": "Investigator", "verdict": inv_note.verdict, "reasons": inv_note.reasons, "fallback": inf},
-        {"agent": "Critic", "verdict": critic_note.verdict, "reasons": critic_note.reasons,
-         "objection_strength": critic_note.objection_strength, "fallback": cf},
-        {"agent": "Coordinator", "verdict": final,
-         "reasons": ["The critic objected, so a person should review this." if objection else "No strong objection."]},
+        ledger_entry("Triage", triage_note, tf, keys),
+        ledger_entry("Investigator", inv_note, inf, keys),
+        {**critic_entry, "objection_strength": critic_note.objection_strength, "objection_counted": objection},
+        {"agent": "Coordinator", "verdict": final, "reasons": [why], "evidence": critic_entry["evidence"] if objection else []},
     ]
     return Debate(transcript, objection, factor, final)

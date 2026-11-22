@@ -99,7 +99,8 @@ def agent_template(role: str, p: dict) -> AgentNote:
     injected = p.get("sanitise", {}).get("sanitise.injection_found", False)
     if role == "triage":
         verdict = "malicious" if prob > 0.6 or injected else "benign" if prob < 0.1 else "suspicious"
-        return AgentNote(verdict=verdict, reasons=[f"calibrated probability {prob}"] + (["hidden_instructions"] if injected else []))
+        return AgentNote(verdict=verdict, evidence=["severity.p_malicious"] + (["sanitise.injection_found"] if injected else []),
+                         reasons=[f"calibrated probability {prob}"] + (["hidden_instructions"] if injected else []))
     if role == "investigator":
         ctx = p.get("context", {})
         reasons = []
@@ -107,23 +108,29 @@ def agent_template(role: str, p: dict) -> AgentNote:
             reasons.append(f"linked to {ctx['incident_alerts']} alerts across {len(ctx.get('tactics', []))} tactics")
         reasons += [f"similar case {c['case_id']} was a {c['outcome']}" for c in p.get("similar", [])[:2]]
         verdict = "malicious" if prob > 0.6 else "suspicious" if prob >= 0.1 else "benign"
-        return AgentNote(verdict=verdict, reasons=reasons or ["no linked evidence yet"])
+        evidence = ["severity.p_malicious"] + [f"similar.{i}.outcome" for i in range(min(2, len(p.get("similar", []))))]
+        if ctx.get("incident_alerts", 1) > 1:
+            evidence.append("context.incident_alerts")
+        return AgentNote(verdict=verdict, reasons=reasons or ["no linked evidence yet"], evidence=evidence)
     # critic: look for the innocent explanation
-    benign, strength = [], 0.0
+    benign, strength, evidence = [], 0.0, []
     if a.get("alert.category") == "authentication":  # device and location only explain away logins
         if a.get("alert.device_known") is True:
             benign.append("known device")
+            evidence.append("alert.device_known")
             strength += 0.3
         if a.get("alert.geo_usual") is True:
             benign.append("usual location")
+            evidence.append("alert.geo_usual")
             strength += 0.25
         if a.get("alert.privilege") in {"admin", "service"} and a.get("alert.off_hours"):
             benign.append("privileged staff often work late")
+            evidence += ["alert.privilege", "alert.off_hours"]
             strength += 0.2
     if p.get("context", {}).get("incident_alerts", 1) > 1 or injected or prob < 0.1:
         # A chain of alerts or a planted payload outweighs the innocent story, and a
         # verdict that is already benign has nothing to disprove.
         strength = 0.0
-        benign = []
+        benign, evidence = [], []
     return AgentNote(verdict="benign" if strength >= 0.5 else "suspicious", reasons=benign or ["no strong benign explanation"],
-                     objection_strength=round(min(1.0, strength), 2))
+                     objection_strength=round(min(1.0, strength), 2), evidence=evidence)
