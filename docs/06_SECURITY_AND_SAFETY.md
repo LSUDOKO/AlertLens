@@ -61,3 +61,10 @@ This document is what wins the 20-point "Solution quality and safety" criterion.
 - `.env` in `.gitignore`; `.env.example` with blanks
 - Add a pre-commit hook or a `make check-secrets` that runs a simple secret scan (regex for keys) before commit
 - No real tokens in tests or fixtures
+
+## 8. Version 2 hardening
+- The critic agent can no longer veto with an unsupported claim: an objection that cites unknown evidence is recorded but not counted.
+- A second model, when configured, can only delete claims, so a compromised or confused judge cannot add text.
+- The public API is locked server-side (see `docs/03_ARCHITECTURE.md` section 9), not only in the UI, so a visitor calling the API directly gets the same limits.
+- The website sends a content security policy that allows network calls only to the API, and no framing.
+- Measured weak spot: the adaptive attacker slips past detection on most rewrites. No rewrite changed a decision, because severity is computed by code from sensor fields the payload cannot reach.

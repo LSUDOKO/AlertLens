@@ -178,3 +178,13 @@ clean
 | Graph built in code | LLMs are weak at multi-hop graph reasoning; code is exact and fast |
 | Mock provider by default | Reproducible, offline and free; the demo can't fail because of an API |
 | SQLite | Zero setup, one file, easy to inspect |
+
+## 9. Version 2 additions
+- **Fact provenance.** `extract_facts` returns a source for each fact (`sensor`, `code`, `model`, or `code, model overruled` when code disagreed with the extractor). The orchestrator adds `ATT&CK catalogue`, `case memory` and `correlation` for the rest of the evidence map, and `AnalysisResult.provenance` carries the result to the UI.
+- **Cross-model judge** (`alertlens/safety/judge.py`, off unless `VERIFIER_PROVIDER` is set, never on a public demo). A second model sees the evidence and the verified claims and may only remove claims. Removed claims keep the reason `cross-model check: ...`.
+- **Agent evidence ledger** (`alertlens/agents/coordinator.py`). Every agent note lists the evidence keys it relies on. The critic's objection counts only when all its keys exist in the evidence map. The ledger is appended to the audit hash chain as an `agent_ledger` event.
+- **ATT&CK retrieval.** The explainer's evidence now includes each technique's short description and detection tips from `attack_subset.json`, so the model can explain a technique without inventing one.
+- **Adaptive attacker** (`alertlens/pipeline/adaptive.py`, `make redteam`). White-box hill-climbing over eight rewrite operators, keeping whatever lowers the detector's risk. It reports how often it slips past detection and whether any rewrite changes a decision.
+- **Faithfulness test** (`eval/faithfulness.py`). Deletes the evidence a claim cites and checks that the verifier notices (verifier mode) or that a real model stops stating the fact (model mode).
+- **Published attacks** (`eval/external.py`, `make external`). 602 payloads from five papers, evaluation only; see `data/external/PUBLISHED_INJECTIONS_SOURCES.md`.
+- **Website and public API.** `web/` is a static Next.js export on Cloudflare Workers Static Assets. It calls the FastAPI app, deployed from `Dockerfile.api` by `render.yaml`. `/v2` routes serve samples, attacks, the adaptive attacker, the hero incident and committed results. With `PUBLIC_DEMO=true` a middleware blocks shared-state routes, caps request bodies at 64 KB, rate-limits each address to 60 requests a minute (using the address the proxy added, which clients cannot forge), and forces the simulated model. `ALLOWED_ORIGINS` sets CORS; `SENTRY_DSN` turns on error reporting.
