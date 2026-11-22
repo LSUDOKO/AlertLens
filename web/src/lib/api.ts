@@ -104,7 +104,7 @@ export const api = {
     call<AttackResult>("/v2/redteam/attack", { json: body }, 600_000),
   adaptive: (body: { alert_id: string; field: string; seed_text: string; steps: number; seed?: number }) =>
     call<AdaptiveResult>("/v2/redteam/adaptive", { json: body }),
-  heroDemo: () => call<{ incident_id: string; alert_ids: string[] }>("/v2/demo/hero", { json: {} }),
+  heroDemo: () => call<{ incident_id: string; alert_ids: string[]; incident: Incident | null }>("/v2/demo/hero", { json: {} }),
   incident: (id: string) => call<Incident>(`/incidents/${encodeURIComponent(id)}`),
   benchmark: () => call<Benchmark>("/v2/benchmark"),
   approve: (instanceId: string, approver: string, confirm = false) =>

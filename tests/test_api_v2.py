@@ -60,6 +60,8 @@ def test_adaptive_and_benchmark(client):
 def test_hero_demo_forms_an_incident(client):
     out = client.post("/v2/demo/hero").json()
     assert client.get(f"/incidents/{out['incident_id']}").json()["graph"]
+    # The incident also comes back inline, so a serverless host needs no second request.
+    assert out["incident"]["incident_id"] == out["incident_id"] and out["incident"]["graph"]
 
 
 def test_public_demo_blocks_shared_state_and_caps_size(public):

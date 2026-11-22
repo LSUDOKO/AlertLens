@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from alertlens.config import ROOT, get_settings
 from alertlens.llm.provider import main_provider
+from alertlens.memory import store as db
 from alertlens.pipeline.adaptive import campaign, summarise
 from alertlens.pipeline.orchestrator import Options
 from alertlens.pipeline.redteam import MAX_CUSTOM_PAYLOAD, attack, attack_custom
@@ -107,7 +108,10 @@ def hero_demo():
     results, incidents = analyze_batch(hero_alerts(), Options())
     if not incidents:
         raise HTTPException(500, "The hero alerts did not form an incident")
-    return {"incident_id": incidents[0].incident_id, "alert_ids": [r.alert.alert_id for r in results]}
+    # Return the stored incident too: on serverless hosts a follow-up GET may reach an instance without it.
+    with db.db() as conn:
+        detail = db.get_incident(conn, incidents[0].incident_id)
+    return {"incident_id": incidents[0].incident_id, "alert_ids": [r.alert.alert_id for r in results], "incident": detail}
 
 
 def _read(path: str) -> dict | None:

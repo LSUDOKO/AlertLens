@@ -17,7 +17,7 @@ export default function IncidentView() {
 
   async function run() {
     setBusy(true); setErr(null);
-    try { const { incident_id } = await api.heroDemo(); setInc(await api.incident(incident_id)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+    try { const hero = await api.heroDemo(); setInc(hero.incident ?? await api.incident(hero.incident_id)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   }
 
   const layout = useMemo(() => {
