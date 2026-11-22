@@ -1,0 +1,15 @@
+# API-only image for the public demo backend (Render, Fly, or any Docker host). The full app is in Dockerfile.
+FROM python:3.12-slim
+WORKDIR /app
+ENV PYTHONPATH=/app LLM_PROVIDER=mock DB_PATH=/tmp/alertlens.db PUBLIC_DEMO=true
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+RUN python -m data.generator.generate --seed 42 --n 2000 --out data/benchmark \
+ && python -m alertlens.scoring.model \
+ && python -m alertlens.safety.classifier
+RUN useradd -m app && chown -R app /app
+USER app
+EXPOSE 8000
+# Render sets PORT; elsewhere it defaults to 8000.
+CMD ["sh", "-c", "python -m scripts.seed_db && exec uvicorn alertlens.api.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level warning"]

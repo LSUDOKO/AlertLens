@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **Aegython 2026. Team ID: `TODO`. Challenge: Explain My Security Alert.**
-[Live demo](https://alertlens-aegython.streamlit.app/) · [Demo video](TODO) · Review tag: `v1.0-submission` (`TODO commit hash`)
+[Website](https://alertlens.adoranto737.workers.dev) · [Live demo](https://alertlens-aegython.streamlit.app/) · [Demo video](TODO) · Review tag: `v1.0-submission` (`TODO commit hash`)
 
 An evidence-grounded security alert explainer, built so that text an attacker plants in a log can't change the verdict.
 
@@ -25,6 +25,10 @@ Security teams get more alerts than they can read, and many now use LLMs to expl
 - Links alerts into one incident with a timeline, attack graph and likely next steps.
 - Explains for an analyst, a manager or an employee, in English or Hindi.
 - Lets you type your own attack in the Red-Team Lab, and shows each raw model reply beside what code did with it.
+- Labels where every fact came from: the sensor, code, the model, the ATT&CK catalogue, past cases or correlation.
+- Can ask a second model to check each claim. It can only remove claims, never add them.
+- Keeps an evidence ledger for the agents: an objection only counts if it cites evidence that exists.
+- Attacks itself with an adaptive attacker that rewrites payloads to slip past the detector, and with injections other researchers published.
 
 ## Quick start
 Needs Python 3.11 or 3.12, or Docker. No API key and no internet needed at runtime.
@@ -66,6 +70,8 @@ Captured from the running app with the default offline provider. All data is syn
 | **Audit log**: hash chain check and tamper demo<br>![Audit log](docs/media/audit-log.png) | **Home**: totals and where alerts went<br>![Home page](docs/media/home.png) |
 
 ## Public demo
+**Website:** [alertlens.adoranto737.workers.dev](https://alertlens.adoranto737.workers.dev), a static Next.js site in `web/` served by Cloudflare Workers. It calls the FastAPI backend, which `render.yaml` deploys to Render's free plan from `Dockerfile.api`. That backend runs locked: simulated models only, no endpoints that change shared state, a 64 KB body cap and 60 requests a minute per address. The free plan sleeps when idle, so the first request can take about a minute. To run the site yourself, see [web/README.md](web/README.md).
+
 The free option is [Streamlit Community Cloud](https://share.streamlit.io): choose this repo, set the main file to `ui/Home.py` and Python to 3.12, and deploy. It uses simulated models. Visitors cannot change settings, retrain the model or run the benchmark. This lock turns on by itself on Streamlit Cloud. Elsewhere, set `PUBLIC_DEMO=true`.
 
 `scripts/deploy_space.sh <username>/alertlens` publishes the same demo as a Hugging Face Docker Space, which needs a paid PRO account.
@@ -164,7 +170,7 @@ Details: [docs/06_SECURITY_AND_SAFETY.md](docs/06_SECURITY_AND_SAFETY.md).
 ## Results
 Copied from [results/benchmark_report.md](results/benchmark_report.md), which `make eval` regenerates. A test fails if these drift from `results/metrics.json`.
 
-**These results use a simulated model.** `VulnerableMockLLM` obeys any instruction it can read, and both systems use it. The naive column is a worst case by construction, not a measurement of a real LLM. Pandey and Bhujang (2026) measured that such mocks can mispredict real models. **No real-model run has been done yet.**
+**These results use a simulated model.** `VulnerableMockLLM` obeys any instruction it can read, and both systems use it. The naive column is a worst case by construction, not a measurement of a real LLM. Pandey and Bhujang (2026) measured that such mocks can mispredict real models. The real-model runs are in [Real local model run](#real-local-model-run-llama32-on-ollama-0344-cpu-only) and the table below.
 
 <!-- results -->
 2000 synthetic alerts, 267 injected and malicious, seed 42, model `vulnerable-mock:obeys-injections-v1`.
@@ -188,6 +194,17 @@ Copied from [results/benchmark_report.md](results/benchmark_report.md), which `m
 | Counterfactual coverage, high or critical | 89.2% |
 <!-- /results -->
 
+### Version 2 checks
+| Check | Command | Measured |
+|---|---|---|
+| Published attacks from five papers, committed set (CC BY 4.0 and MIT) | `make external` | 64.6% detected, 0 of 99 lowered a severity |
+| Same, full set of 602 rebuilt locally (licences forbid redistributing some) | `make external` | 73.1% detected, 0 of 602 lowered a severity |
+| Adaptive attacker, 10 campaigns | `make redteam` | slipped past detection on 81.9% of 310 rewrites, changed 0 decisions |
+| Verifier notices a claim whose evidence was deleted | `make faithfulness` | 422 of 422 (a check of our own code) |
+| llama3.2 restates a fact after its evidence is deleted | `make faithfulness FAITH_ARGS="--mode model --provider ollama --model llama3.2 --alerts 5"` | 0 of 8 claims |
+
+Read these with care. The adaptive attacker's rewrites sometimes stop being attacks (a translation, for example), which inflates its evasion rate. 3 of the 99 committed published payloads share wording with the classifier's training text. The llama3.2 faithfulness run is 5 alerts; an earlier run counted 1 of 11, and that one hit was our bug (a case-sensitive match on a value still in the facts), now fixed.
+
 ## Testing
 `make test` runs 294 tests offline with 96% coverage of `alertlens/`, including a Streamlit smoke test of every page. CI runs lint, secret scan and tests on every push.
 
@@ -201,6 +218,7 @@ eval/        benchmark harness
 results/     generated report, metrics and charts
 tests/       test suite
 docs/        specification and Q&A notes
+web/         public website: Next.js static export on Cloudflare Workers, Playwright tests
 ```
 
 ## Known limitations

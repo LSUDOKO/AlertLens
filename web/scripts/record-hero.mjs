@@ -1,0 +1,42 @@
+// Record the red-team duel on the running site and turn it into the hero loop. Usage: node scripts/record-hero.mjs [url]
+import { chromium } from "@playwright/test";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+
+const url = process.argv[2] || "http://127.0.0.1:8787/";
+const dir = "/tmp/alertlens-hero-frames";
+fs.rmSync(dir, { recursive: true, force: true });
+fs.mkdirSync(dir, { recursive: true });
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+await page.goto(url, { waitUntil: "networkidle" });
+await page.evaluate(() => { document.getElementById("redteam").scrollIntoView(); window.scrollBy(0, 120); });
+await page.waitForTimeout(1500);
+const frames = [];
+const cdp = await page.context().newCDPSession(page);
+cdp.on("Page.screencastFrame", async ({ data, metadata, sessionId }) => {
+  const file = `${dir}/${String(frames.length).padStart(5, "0")}.jpg`;
+  fs.writeFileSync(file, Buffer.from(data, "base64"));
+  frames.push({ file, t: metadata.timestamp });
+  await cdp.send("Page.screencastFrameAck", { sessionId }).catch(() => {});
+});
+await cdp.send("Page.startScreencast", { format: "jpeg", quality: 90, maxWidth: 1280, maxHeight: 800 });
+await page.waitForTimeout(800);
+await page.getByRole("button", { name: "Attack", exact: true }).click();
+await page.locator(".duel").waitFor({ timeout: 60000 });
+await page.waitForTimeout(1500);
+await page.evaluate(() => window.scrollBy({ top: 380, behavior: "smooth" }));
+await page.waitForTimeout(2000);
+await page.getByRole("button", { name: "Run the attacker" }).click();
+await page.locator(".adaptive .res-card").waitFor({ timeout: 60000 });
+await page.evaluate(() => document.querySelector(".adaptive .res-card").scrollIntoView({ behavior: "smooth", block: "center" }));
+await page.waitForTimeout(3200);
+await cdp.send("Page.stopScreencast");
+await browser.close();
+const list = frames.map((f, i) => `file '${f.file}'\nduration ${Math.max(0.001, (frames[i + 1]?.t ?? f.t + 0.6) - f.t).toFixed(4)}`).join("\n") + `\nfile '${frames.at(-1).file}'\n`;
+fs.writeFileSync(`${dir}/list.txt`, list);
+const vf = "fps=30,scale=1280:-2,eq=saturation=1.05:contrast=1.04";
+execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", `${dir}/list.txt`, "-vf", vf, "-an", "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "38", "-row-mt", "1", "public/media/hero-loop.webm"]);
+execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", `${dir}/list.txt`, "-vf", `${vf},format=yuv420p`, "-an", "-c:v", "libx264", "-crf", "27", "-preset", "slow", "-movflags", "+faststart", "public/media/hero-loop.mp4"]);
+execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-sseof", "-2", "-i", "public/media/hero-loop.mp4", "-frames:v", "1", "-q:v", "4", "public/media/hero-poster.jpg"]);
+console.log(`hero loop: ${frames.length} frames`);

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="none">
+<defs><filter id="t" x="-10%" y="-10%" width="120%" height="120%">
+<feTurbulence type="fractalNoise" baseFrequency="0.035 0.06" numOctaves="5" seed="3" result="n"/>
+<feDisplacementMap in="SourceGraphic" in2="n" scale="26" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
+<polygon points="430,-80 1520,-80 1520,600" fill="#fff" filter="url(#t)"/></svg>

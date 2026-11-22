@@ -6,3 +6,7 @@ data/benchmark
 .playwright-mcp
 __pycache__
 .env
+web
+results/*.html
+test-results
+.reanimate

@@ -1,0 +1,35 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "eslint",
+    "preview": "next build && wrangler dev",
+    "deploy": "next build && wrangler deploy",
+    "test:e2e": "playwright test",
+    "api:types": "cd .. && .venv/bin/python -c \"import json; from alertlens.api.main import app; json.dump(app.openapi(), open('web/openapi.json','w'), indent=1)\" && cd web && openapi-typescript openapi.json -o src/lib/api-schema.ts",
+    "record:hero": "node scripts/record-hero.mjs"
+  },
+  "dependencies": {
+    "d3-force": "^3.0.1",
+    "motion": "^14.14.0",
+    "next": "16.4.6",
+    "openapi-fetch": "^0.17.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/d3-force": "^3.0.10",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5",
+    "wrangler": "^4.166.0"
+  }
+}
