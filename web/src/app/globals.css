@@ -575,3 +575,7 @@ dialog.paths code { display: block; white-space: pre-wrap; font: 400 0.78rem/1.5
 .graph .node { transform-box: fill-box; transform-origin: center; }
 /* Decorative lines run past the viewport on purpose; never let them make the page scroll sideways. */
 html, body { overflow-x: clip; }
+/* The floating nav sits over page text: keep it dark enough that nothing reads through it. */
+.nav.glass-bar { background: rgba(10, 8, 8, 0.92); }
+.code-tag { white-space: nowrap; }
+.section { scroll-margin-top: 96px; }
