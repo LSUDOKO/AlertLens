@@ -191,7 +191,8 @@ def analyze(obj: dict, options: Options | None = None) -> AnalysisResult:
         kept = [Claim(text=c.text, evidence=c.evidence, key=c.key, status="verified") for c in draft.claims]
         removed, grounding, prose_src = [], 1.0, draft
     judge_report: dict = {}
-    judge = o.judge or (build_provider(get_settings().verifier_provider) if get_settings().verifier_provider != "none" else None)
+    s = get_settings()
+    judge = o.judge or (build_provider(s.verifier_provider) if s.verifier_provider != "none" and not s.public_demo else None)
     if route == "llm" and judge is not None and o.verifier:
         kept, judged_out, judge_report = judge_claims(evidence, kept, TracingProvider(judge, model_trace, "judge"))
         removed = [*removed, *judged_out]

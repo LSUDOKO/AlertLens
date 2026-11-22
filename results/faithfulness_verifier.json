@@ -1,0 +1,8 @@
+{
+ "mode": "verifier",
+ "alerts": 60,
+ "claims_checked": 422,
+ "flagged_when_evidence_removed": 422,
+ "rate": 1.0,
+ "date": "2026-11-22T08:15:57+00:00"
+}

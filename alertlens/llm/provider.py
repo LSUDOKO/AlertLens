@@ -166,11 +166,13 @@ def build_provider(kind: str, settings: Settings | None = None) -> LLMProvider:
 
 
 def main_provider() -> LLMProvider:
-    return build_provider(get_settings().llm_provider)
+    s = get_settings()
+    return build_provider("mock" if s.public_demo else s.llm_provider)
 
 
 def quarantine_provider() -> LLMProvider:
-    return build_provider(get_settings().quarantine_provider)
+    s = get_settings()
+    return build_provider("mock" if s.public_demo else s.quarantine_provider)
 
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)

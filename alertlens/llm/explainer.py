@@ -69,12 +69,13 @@ def evidence_map(payload: dict) -> dict[str, object]:
     for section in ("alert", "facts", "severity", "sanitise"):
         out.update(payload.get(section, {}))
     for i, t in enumerate(payload.get("mitre", [])):
-        out[f"mitre.{i}.id"], out[f"mitre.{i}.name"], out[f"mitre.{i}.tactic"] = t["id"], t["name"], t["tactic"]
-        for part in ("description", "detection"):
+        for part in ("id", "name", "tactic", "description", "detection"):
             if t.get(part):
                 out[f"mitre.{i}.{part}"] = t[part]
     for i, c in enumerate(payload.get("similar", [])):
-        out[f"similar.{i}.case_id"], out[f"similar.{i}.outcome"] = c["case_id"], c["outcome"]
+        for part in ("case_id", "outcome"):
+            if part in c:
+                out[f"similar.{i}.{part}"] = c[part]
     for k, v in (payload.get("context") or {}).items():
         if isinstance(v, (str, int, float, bool)):
             out[f"context.{k}"] = v

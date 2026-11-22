@@ -17,3 +17,4 @@ httpx
 pytest
 pytest-cov
 ruff
+sentry-sdk  # only active when SENTRY_DSN is set
