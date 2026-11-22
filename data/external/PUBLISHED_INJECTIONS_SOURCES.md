@@ -1,8 +1,12 @@
 # Published log/alert prompt-injection payloads: sources
 
-`published_injections.json` is an external, held-out evaluation set. It holds 602 prompt-injection
-strings that other researchers published for attacks on LLM log and alert analysis. AlertLens did not
-write any of them.
+This is an external, held-out evaluation set of 602 prompt-injection strings that other researchers
+published for attacks on LLM log and alert analysis. AlertLens did not write any of them, and they are
+never used for training.
+
+Only the 99 records whose licences allow redistribution (CC BY 4.0 and MIT) are committed, in
+`published_injections.json`. The full set is rebuilt locally into `published_injections_full.json`
+(git-ignored) with `build_published_injections.py`; `make external` evaluates it when present.
 
 Each record has the same seven keys: `text`, `source_title`, `source_url`, `location`, `field`, `goal`,
 `licence`. `field` or `goal` is `null` when the source does not state it.

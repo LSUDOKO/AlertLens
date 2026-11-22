@@ -168,7 +168,7 @@ Alert → Parse → Sanitise → Score (rules + ML, no LLM) → Map to ATT&CK �
 Details: [docs/06_SECURITY_AND_SAFETY.md](docs/06_SECURITY_AND_SAFETY.md).
 
 ## Results
-Copied from [results/benchmark_report.md](results/benchmark_report.md), which `make eval` regenerates. A test fails if these drift from `results/metrics.json`.
+Copied from [results/benchmark_report.md](results/benchmark_report.md), which `make eval` regenerates. The version 2 checks below come from `make external`, `make redteam` and `make faithfulness`. A test fails if these drift from `results/metrics.json`.
 
 **These results use a simulated model.** `VulnerableMockLLM` obeys any instruction it can read, and both systems use it. The naive column is a worst case by construction, not a measurement of a real LLM. Pandey and Bhujang (2026) measured that such mocks can mispredict real models. The real-model runs are in [Real local model run](#real-local-model-run-llama32-on-ollama-0344-cpu-only) and the table below.
 
@@ -206,7 +206,7 @@ Copied from [results/benchmark_report.md](results/benchmark_report.md), which `m
 Read these with care. The adaptive attacker's rewrites sometimes stop being attacks (a translation, for example), which inflates its evasion rate. 3 of the 99 committed published payloads share wording with the classifier's training text. The llama3.2 faithfulness run is 5 alerts; an earlier run counted 1 of 11, and that one hit was our bug (a case-sensitive match on a value still in the facts), now fixed.
 
 ## Testing
-`make test` runs 294 tests offline with 96% coverage of `alertlens/`, including a Streamlit smoke test of every page. CI runs lint, secret scan and tests on every push.
+`make test` runs 317 tests offline with 96% coverage of `alertlens/`, including a Streamlit smoke test of every page. CI runs lint, secret scan and tests on every push.
 
 ## Project structure
 ```
@@ -230,7 +230,7 @@ web/         public website: Next.js static export on Cloudflare Workers, Playwr
 - Numeric and enum fields such as `rule_level` are trusted as sensor output. Anyone able to forge them can change the score.
 - Correlation precision is moderate: attackers sharing an address get merged.
 - The next-step predictor is a heuristic. Hindi uses templates, so claims written by a real LLM stay in English.
-- The API has no login, so it binds to localhost. The audit log is tamper-evident, not tamper-proof.
+- The API has no login. Locally it binds to localhost; the public copy runs locked (simulated models only, no shared-state changes, rate limited). The audit log is tamper-evident, not tamper-proof.
 
 ## Contributing and security
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Report bypasses privately.

@@ -78,6 +78,15 @@ def test_public_demo_rate_limit(public):
     assert codes[0] == 200 and codes[-1] == 429
 
 
+def test_rate_limit_is_per_visitor_and_ignores_forged_addresses(public):
+    n = main.PUBLIC_RATE_PER_MINUTE
+    # Two visitors behind the proxy get separate buckets.
+    assert all(public.get("/health", headers={"x-forwarded-for": "198.51.100.1"}).status_code == 200 for _ in range(n))
+    assert public.get("/health", headers={"x-forwarded-for": "198.51.100.2"}).status_code == 200
+    # A forged left-most address does not buy a fresh bucket: the proxy's entry is the one counted.
+    assert public.get("/health", headers={"x-forwarded-for": "203.0.113.9, 198.51.100.1"}).status_code == 429
+
+
 def test_public_demo_never_uses_a_real_model(public, monkeypatch):
     from alertlens.llm.provider import main_provider, quarantine_provider
 

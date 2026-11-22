@@ -44,8 +44,9 @@ _hits_lock = threading.Lock()
 
 
 def _client(request: Request) -> str:
+    # Behind one proxy (Render), the last entry is the address the proxy saw; earlier ones are client-supplied and forgeable.
     forwarded = request.headers.get("x-forwarded-for", "")
-    return forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+    return forwarded.split(",")[-1].strip() or (request.client.host if request.client else "unknown")
 
 
 def _rate_limited(key: str) -> bool:

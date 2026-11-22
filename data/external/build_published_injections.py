@@ -3,7 +3,9 @@
 Payload text is only ever copied from source files (JSON/JSONL/AST of run.py)
 or, for paper-only strings, asserted to be a substring of the paper's clean
 arXiv HTML / TeX text. Nothing is retyped without such an assertion.
-Run with: python3 -I build.py <scratchpad> <out.json>
+Run with: python3 -I build_published_injections.py <downloads dir> data/external/published_injections_full.json
+The output holds payloads whose licences forbid redistribution, so it is git-ignored. The committed
+published_injections.json is the redistributable subset (CC BY 4.0 and MIT) of that file.
 """
 import ast
 import html
@@ -13,6 +15,8 @@ import sys
 from collections import Counter, OrderedDict
 
 SP, OUT = sys.argv[1], sys.argv[2]
+if OUT.endswith("published_injections.json"):
+    sys.exit("Write the full set to published_injections_full.json; the committed file is the redistributable subset.")
 records = []
 
 
