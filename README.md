@@ -33,6 +33,7 @@ An alert explainer for security teams, built so that text an attacker plants in 
 | **Website** | [alertlens.adoranto737.workers.dev](https://alertlens.adoranto737.workers.dev) (live analyzer, red team, incident graph, results) |
 | **Analyst app** | [alertlens-aegython.streamlit.app](https://alertlens-aegython.streamlit.app/) |
 | **Public API** | [alertlens-api.vercel.app/docs](https://alertlens-api.vercel.app/docs) |
+| **Pitch deck (PDF, 12 slides)** | [alertlens.adoranto737.workers.dev/pitch/AlertLens-pitch-deck.pdf](https://alertlens.adoranto737.workers.dev/pitch/AlertLens-pitch-deck.pdf) · [in repo](docs/pitch/AlertLens-pitch-deck.pdf) |
 | **Run it offline** | `make setup && make demo` (no API key, no internet at runtime) |
 | **Review tag** | [`v1.0-submission`](https://github.com/LSUDOKO/AlertLens/releases/tag/v1.0-submission) |
 
